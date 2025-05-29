@@ -20,6 +20,8 @@ void gameEngine::run()
         window.window->clear();
         player.checkEvent(window.window, delta);
         player.render(window.window);
+        coin.update(delta);
+        coin.rendering(window.window);
         window.window->display();
     }
 }
@@ -49,7 +51,7 @@ Player::Player(RenderWindow* l)
     spriteplayer = new Sprite(textureplayer);
     spriteplayer->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
     spriteplayer->setScale({ 3.0f, 3.0f });
-    moveSpeed = 500.f;
+    moveSpeed = 2000.f;
     length = 40.f;  
     width = 120.f;
     playerX = 600.f;
@@ -111,3 +113,31 @@ float getRandomNumber() {
     return dis(gen);
 }
 
+Money::Money()
+{
+    if (!texturecoin.loadFromFile("Sprites/money/coin.png"))
+    {
+        cout << "ERROR LOADING SPRITE" << endl;
+    }
+    spritecoin = new Sprite(texturecoin);
+    spritecoin->setTextureRect(IntRect({ 0, 0 }, { 64, 64 }));
+    spritecoin->setPosition({ 640, 360 });
+    spritecoin->setScale({ .5f, .5f });
+}
+
+void Money::update(float deltaTime) {
+    frameTimer += deltaTime;
+
+    if (frameTimer >= frameDuration) {
+        currentFrame = (currentFrame + 1) % totalFrames;
+
+        spritecoin->setTextureRect(IntRect({ currentFrame * frameWidth, 0 }, { frameWidth, frameHeight }));
+        frameTimer = 0.f;
+    }
+}
+
+void Money::rendering(RenderWindow* l)
+{
+    l->draw(*spritecoin);
+
+}

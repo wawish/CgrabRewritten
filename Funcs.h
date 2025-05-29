@@ -32,23 +32,30 @@ public:
 	~Player();
 };
 
-//class Money
-//	{
-//	public:
-//		CircleShape gold;
-//		Money();
-//		float update();
-//		float respawn();
-//	private:
-//		float radius;
-//		int maxGoldCount;
-//	};
+class Money
+	{
+	public:
+		Texture texturecoin;
+		Sprite* spritecoin;
+		float frameDuration = 0.025f;
+		float frameTimer = 0.f;
+		int frameWidth = 64;
+		int frameHeight = 64;
+		int totalFrames = 25;
+		int currentFrame = 0;
+		Money();
+		void update(float);
+		void rendering(RenderWindow*);
+	private:
+		int maxGoldCount;
+	};
 
 class gameEngine
 {
 public:
 	gameWindow window;
 	Player player;
+	Money coin;
 
 	gameEngine();
 	void run();
