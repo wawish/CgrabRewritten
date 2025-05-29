@@ -75,26 +75,14 @@ void Player::checkEvent(RenderWindow* l, float x)
        
             if (keyEvent->code == sf::Keyboard::Key::D)
             {
-                float nextX = playerX + moveSpeed * x;
-                float rightEdge = nextX + textureplayer.getSize().x;
-                if (rightEdge <= l->getSize().x) {
-                    cout << "Moved Right" << std::endl;
-                    moveRight(x);
-                } else {
-                    playerX = l->getSize().x - textureplayer.getSize().x;
-                    spriteplayer->setPosition({ playerX, 624.f });
-                }
+                cout << "Moved Right" << endl;
+                moveRight(x);
+               
             }
             if (keyEvent->code == sf::Keyboard::Key::A)
             {
-                float nextX = playerX - moveSpeed * x;
-                if (nextX >= 0) {
-                    cout << "Moved Left" << std::endl;
-                    moveLeft(x);
-                } else {
-                    playerX = 0;
-                    spriteplayer->setPosition({ playerX, 624.f });
-                }
+                cout << "Moved Left" << endl;
+                moveLeft(x);
             }
         }
         if (event->is<sf::Event::Closed>())
