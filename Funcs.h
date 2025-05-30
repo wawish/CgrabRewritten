@@ -21,6 +21,7 @@ private:
 	float length, width;
 	float playerX;
 	float moveSpeed;
+	
 public:
 	Texture textureplayer;
 	Sprite* spriteplayer;
@@ -29,6 +30,7 @@ public:
 	void moveLeft(float);
 	void render(RenderWindow*);
 	Player(RenderWindow*);
+	int score;
 	~Player();
 };
 
@@ -37,17 +39,21 @@ class Money
 	public:
 		Texture texturecoin;
 		Sprite* spritecoin;
-		float frameDuration = 0.025f;
-		float frameTimer = 0.f;
-		int frameWidth = 64;
-		int frameHeight = 64;
-		int totalFrames = 25;
-		int currentFrame = 0;
+		float randomValX;
+		float moveFallspeed = 500.f;
+		float fallSpeed;
+		void respawn();
 		Money();
 		void update(float);
 		void rendering(RenderWindow*);
 	private:
 		int maxGoldCount;
+		float frameDuration;
+		float frameTimer;
+		int frameWidth;
+		int frameHeight;
+		int totalFrames;
+		int currentFrame;
 	};
 
 class gameEngine
@@ -55,7 +61,8 @@ class gameEngine
 public:
 	gameWindow window;
 	Player player;
-	Money coin;
+	Money coin[20];
+	int activeCoins;     
 
 	gameEngine();
 	void run();
