@@ -1,10 +1,21 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFMl/System.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 
 using namespace sf;
 using namespace std;
+
+class gameMenu
+{
+public:
+	Font mainfont;
+	Sprite* spritebuttonPlay, spritebuttonQuit, spritebuttonSettings, spriteLogo;
+	Sound onClick, onHover;
+	Music* bgmMusic;
+
+};
 
 class gameWindow
 {
@@ -28,9 +39,10 @@ public:
 	void checkEvent(RenderWindow*, float);
 	void moveRight(float);
 	void moveLeft(float);
-	void render(RenderWindow*);
+	void renderplayer(RenderWindow*);
 	Player(RenderWindow*);
 	int score;
+	int health;
 	~Player();
 };
 
@@ -40,12 +52,12 @@ class Money
 		Texture texturecoin;
 		Sprite* spritecoin;
 		float randomValX;
-		float moveFallspeed = 500.f;
+		float coinFallspeed;
 		float fallSpeed;
-		void respawn();
+		void respawncoin();
 		Money();
-		void update(float);
-		void rendering(RenderWindow*);
+		void updatecoin(float);
+		void rendercoin(RenderWindow*);
 	private:
 		int maxGoldCount;
 		float frameDuration;
@@ -54,17 +66,44 @@ class Money
 		int frameHeight;
 		int totalFrames;
 		int currentFrame;
-	};
+};
+
+class Bomb
+{
+public:
+	Texture texturebomb;
+	Sprite* spritebomb;
+	float randomValX;
+	float bombFallspeed;
+	float fallSpeed;
+	void respawnbomb();
+	Bomb();
+	void updatebomb(float);
+	void renderbomb(RenderWindow*);
+private:
+	float frameDuration;
+	float frameTimer;
+	int frameWidth;
+	int frameHeight;
+	int totalFrames;
+	int currentFrame;
+
+};
 
 class gameEngine
 {
 public:
 	gameWindow window;
 	Player player;
-	Money coin[20];
-	int activeCoins;     
+	Money coin[10];
+	Bomb bomb[100];
+	int activeCoins;
+	int activeBombs;
+	int lastcoinThreshold;   // <-- add this
+	int lastbombThreshold;   // <-- and this
 
 	gameEngine();
 	void run();
 };
+
 

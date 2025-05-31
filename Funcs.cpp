@@ -10,6 +10,9 @@ gameEngine::gameEngine()
     : window(), player(window.window)
 {
     activeCoins = 5;
+    activeBombs = 3;
+    lastcoinThreshold = 0;   // <-- initialize here
+    lastbombThreshold = 0;   // <-- and here
 }
 
 void gameEngine::run()
@@ -19,26 +22,50 @@ void gameEngine::run()
         float delta = clock.restart().asSeconds();
         window.window->clear();
         player.checkEvent(window.window, delta);
-        player.render(window.window);
+        player.renderplayer(window.window);
 
         for (int i = 0; i < activeCoins; i++) {
-            coin[i].update(delta);
-            coin[i].rendering(window.window);
+            coin[i].updatecoin(delta);
+            coin[i].rendercoin(window.window);
+        }
+        for (int i = 0; i < activeBombs; i++) {
+            bomb[i].updatebomb(delta);
+            bomb[i].renderbomb(window.window);
         }
         for (int i = 0; i < activeCoins; i++) {
             if (coin[i].spritecoin->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
                 player.score += 100;
                 cout << "hit! " << player.score << endl;
-                coin[i].respawn();
+                coin[i].respawncoin();
+            }
+        }
+        for (int i = 0; i < activeBombs; i++) {
+            if (bomb[i].spritebomb->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
+                player.health -= 1;
+                cout << "explode! " << player.health << endl;
+                bomb[i].respawnbomb();
             }
         }
 
-        static int lastThreshold = 0;
-        int threshold = player.score / 500;
-        if (threshold > lastThreshold && activeCoins < 20) {
+        int cointhreshold = player.score / 100;
+        if (cointhreshold > lastcoinThreshold && activeCoins < 10) {
             cout << "THRESHOLD REACHED! " << player.score << endl;
             activeCoins++;
-            lastThreshold = threshold;
+            for (int i = 0; i < activeCoins; ++i) {
+                coin[i].coinFallspeed += 50.f;
+            }
+            lastcoinThreshold = cointhreshold;
+        }
+
+
+        int bombthreshold = player.score / 1000;
+        if (bombthreshold > lastbombThreshold && activeBombs < 100) {
+            cout << "THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
+            activeBombs++;
+            for (int i = 0; i < activeBombs; ++i) {
+                bomb[i].bombFallspeed += 50.f;
+            }
+            lastbombThreshold = bombthreshold;
         }
 
         window.window->display();
@@ -64,6 +91,7 @@ Player::~Player()
 Player::Player(RenderWindow* l)
 {  
     score = 0;
+    health = 25;
     if (!textureplayer.loadFromFile("Sprites/player/playerwalk.png"))
     {
         cout << "ERROR LOADING SPRITE" << endl;
@@ -79,7 +107,7 @@ Player::Player(RenderWindow* l)
 
 }
 
-void Player::render(RenderWindow* l)
+void Player::renderplayer(RenderWindow* l)
 {
     l->draw(*spriteplayer); 
 
@@ -143,7 +171,7 @@ float getRandomNumber() {
 
 Money::Money()
 {
-
+    coinFallspeed = 250.f;
     frameDuration = 0.025f;
     frameTimer = 0.f;
     frameWidth = 64;
@@ -156,18 +184,18 @@ Money::Money()
     }
     spritecoin = new Sprite(texturecoin);
     spritecoin->setTextureRect(IntRect({ 0, 0 }, { 64, 64 }));
-    spritecoin->setScale({ .75f, .75f });
-    respawn();
+    spritecoin->setScale({ .5f, .5f });
+    respawncoin();
 }
 
-void Money::respawn() {
+void Money::respawncoin() {
     randomValX = (1280 - 32) * getRandomNumber();
     float y = 0.f;
     spritecoin->setPosition({ randomValX, y });
-    fallSpeed = 200.f + getRandomNumber() * 400.f; // 200-600 px/sec
+    fallSpeed = coinFallspeed + getRandomNumber() * 100.f;
 }
 
-void Money::update(float deltaTime) {
+void Money::updatecoin(float deltaTime) {
     frameTimer += deltaTime;
 
     if (frameTimer >= frameDuration) {
@@ -181,13 +209,60 @@ void Money::update(float deltaTime) {
     spritecoin->setPosition({ Xpos, Ypos + fallSpeed * deltaTime });
 
     if (spritecoin->getPosition().y > 720) {
-        respawn();
+        respawncoin();
     }
 }
 
-void Money::rendering(RenderWindow* l)
+void Money::rendercoin(RenderWindow* l)
 {
-
     l->draw(*spritecoin);
+}
 
+Bomb::Bomb()
+{
+    bombFallspeed = 200.f;
+    frameDuration = 0.1f;
+    frameTimer = 0.f;
+    frameWidth = 64;
+    frameHeight = 64;
+    totalFrames = 2;
+    currentFrame = 0;
+    if (!texturebomb.loadFromFile("Sprites/bomb/bomb.png"))
+    {
+        cout << "ERROR LOADING SPRITE" << endl;
+    }
+    spritebomb = new Sprite(texturebomb);
+    spritebomb->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
+    spritebomb->setScale({ 2.f, 2.f });
+    respawnbomb();
+}
+
+void Bomb::respawnbomb() {
+    randomValX = (1280 - 32) * getRandomNumber();
+    float y = 0.f;
+    spritebomb->setPosition({ randomValX, y });
+    fallSpeed = bombFallspeed + getRandomNumber() * 100.f;
+}
+
+void Bomb::updatebomb(float deltaTime) {
+    frameTimer += deltaTime;
+
+    if (frameTimer >= frameDuration) {
+        currentFrame = (currentFrame + 1) % totalFrames;
+        spritebomb->setTextureRect(IntRect({ currentFrame * frameWidth, 0 }, { frameWidth, frameHeight }));
+        frameTimer = 0.f;
+    }
+
+    auto Xpos = spritebomb->getPosition().x;
+    auto Ypos = spritebomb->getPosition().y;
+    spritebomb->setPosition({ Xpos, Ypos + fallSpeed * deltaTime });
+
+    if (spritebomb->getPosition().y > 720) {
+        respawnbomb();
+    }
+}
+
+void Bomb::renderbomb(RenderWindow* l)
+{
+    l->draw(*spritebomb);
 }
