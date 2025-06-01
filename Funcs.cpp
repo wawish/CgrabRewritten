@@ -1,6 +1,7 @@
 #include "Funcs.h"
 #include <random>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 
 using namespace sf;
@@ -9,45 +10,47 @@ using namespace std;
 gameEngine::gameEngine()
     : window(), player(window.window)
 {
-    activeCoins = 5;
-    activeBombs = 3;
-    lastcoinThreshold = 0;   // <-- initialize here
-    lastbombThreshold = 0;   // <-- and here
+    activeCoins = 5; //coins currently onscreen
+    activeBombs = 3; //bombs currently onscreen
+    lastcoinThreshold = 0; //stores the current threshold for coins
+    lastbombThreshold = 0; //stores the current threshold for bombs
 }
 
 void gameEngine::run()
 {
     sf::Clock clock;
     while (window.window->isOpen()) {
-        float delta = clock.restart().asSeconds();
-        window.window->clear();
-        player.checkEvent(window.window, delta);
-        player.renderplayer(window.window);
+        float delta = clock.restart().asSeconds(); //delta time var
+        window.window->clear(); //clears the window
+        player.checkEvent(window.window, delta); //keystroke checker
+        player.renderplayer(window.window); //draws the player
 
-        for (int i = 0; i < activeCoins; i++) {
+        for (int i = 0; i < activeCoins; i++) { //falling coins
             coin[i].updatecoin(delta);
             coin[i].rendercoin(window.window);
         }
-        for (int i = 0; i < activeBombs; i++) {
+        for (int i = 0; i < activeBombs; i++) { //falling bombs
             bomb[i].updatebomb(delta);
             bomb[i].renderbomb(window.window);
         }
-        for (int i = 0; i < activeCoins; i++) {
+        for (int i = 0; i < activeCoins; i++) { //collision checker for coins
             if (coin[i].spritecoin->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
                 player.score += 100;
+                coin[i].coinSounds->play();
                 cout << "hit! " << player.score << endl;
                 coin[i].respawncoin();
             }
         }
-        for (int i = 0; i < activeBombs; i++) {
+        for (int i = 0; i < activeBombs; i++) { //collision checker for bombs
             if (bomb[i].spritebomb->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
                 player.health -= 1;
+                bomb[i].bombSounds->play();
                 cout << "explode! " << player.health << endl;
                 bomb[i].respawnbomb();
             }
         }
 
-        int cointhreshold = player.score / 100;
+        int cointhreshold = player.score / 100; //coin ramp up
         if (cointhreshold > lastcoinThreshold && activeCoins < 10) {
             cout << "THRESHOLD REACHED! " << player.score << endl;
             activeCoins++;
@@ -58,32 +61,32 @@ void gameEngine::run()
         }
 
 
-        int bombthreshold = player.score / 1000;
-        if (bombthreshold > lastbombThreshold && activeBombs < 100) {
+        int bombthreshold = player.score / 1000; //bomb ramp up
+        if (bombthreshold > lastbombThreshold && activeBombs < 25) {
             cout << "THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
             activeBombs++;
             for (int i = 0; i < activeBombs; ++i) {
                 bomb[i].bombFallspeed += 50.f;
-            }
+            }   
             lastbombThreshold = bombthreshold;
         }
 
-        window.window->display();
+        window.window->display(); //draws the screen
     }
 }
 
 gameWindow::gameWindow()
 {
-    window = new RenderWindow(VideoMode({ 1280, 720 }), "Minecraft");
-    window->setFramerateLimit(144);
+    window = new RenderWindow(VideoMode({ 1280, 720 }), "Cash Grab!"); //initializes the window
+    window->setFramerateLimit(60);
 }
 
-gameWindow::~gameWindow()
+gameWindow::~gameWindow() //deconstructor
 {
     delete window;
 }
 
-Player::~Player()
+Player::~Player() //deconstructor
 {
     delete spriteplayer;
 }
@@ -92,22 +95,20 @@ Player::Player(RenderWindow* l)
 {  
     score = 0;
     health = 25;
-    if (!textureplayer.loadFromFile("Sprites/player/playerwalk.png"))
+    if (!textureplayer.loadFromFile("Sprites/player/playerwalk.png")) //checks if it load properly
     {
         cout << "ERROR LOADING SPRITE" << endl;
     }
-    spriteplayer = new Sprite(textureplayer);
-    spriteplayer->setTextureRect(IntRect({ 0, 0 }, { 24, 32 }));
-    spriteplayer->setScale({ 3.0f, 3.0f });
-    moveSpeed = 2000.f;
-    length = 40.f;  
-    width = 120.f;
-    playerX = 600.f;
+    spriteplayer = new Sprite(textureplayer); //init for player sprite
+    spriteplayer->setTextureRect(IntRect({ 0, 0 }, { 24, 32 })); //sets the sprite as a rectangle
+    spriteplayer->setScale({ 3.0f, 3.0f }); //triples the size
+    moveSpeed = 700.f; //init for player ms
+    playerX = 600.f; //init for startpos
     spriteplayer->setPosition({ playerX, 624.f });
 
 }
 
-void Player::renderplayer(RenderWindow* l)
+void Player::renderplayer(RenderWindow* l) //draws the player
 {
     l->draw(*spriteplayer); 
 
@@ -115,28 +116,23 @@ void Player::renderplayer(RenderWindow* l)
 
 void Player::checkEvent(RenderWindow* l, float x)
 {
-    while (auto event = l->pollEvent())
+    while (auto event = l->pollEvent()) //checks for event
     {
-        if (event->is<Event::KeyPressed>())
-        {
-            auto keyEvent = event->getIf<Event::KeyPressed>();
-       
-            if (keyEvent->code == Keyboard::Key::D)
-            {
-                cout << "Moved Right" << endl;
-                moveRight(x);
-               
-            }
-            if (keyEvent->code == Keyboard::Key::A)
-            {
-                cout << "Moved Left" << endl;
-                moveLeft(x);
-            }
-        }
-        if (event->is<Event::Closed>())
+        
+        if (event->is<Event::Closed>()) //when x is clicked
         {
             l->close();
         }
+    }
+
+    if (Keyboard::isKeyPressed(Keyboard::Key::D))
+    {
+        moveRight(x);
+
+    }
+    if (Keyboard::isKeyPressed(Keyboard::Key::A))
+    {
+        moveLeft(x);
     }
 }
 
@@ -171,6 +167,12 @@ float getRandomNumber() {
 
 Money::Money()
 {
+
+    if (!takeCoin.loadFromFile("Sprites/soundfx/pickupCoin.wav")) {
+        cout << "ERROR LOADING COIN SOUND" << endl;
+    }
+    coinSounds = new Sound(takeCoin);
+    coinSounds->setBuffer(takeCoin);
     coinFallspeed = 250.f;
     frameDuration = 0.025f;
     frameTimer = 0.f;
@@ -220,20 +222,25 @@ void Money::rendercoin(RenderWindow* l)
 
 Bomb::Bomb()
 {
+    if (!takeBomb.loadFromFile("Sprites/soundfx/explosion.wav")) {
+        cout << "ERROR LOADING COIN SOUND" << endl;
+    }
+    bombSounds = new Sound(takeBomb);
+    bombSounds->setBuffer(takeBomb);
     bombFallspeed = 200.f;
     frameDuration = 0.1f;
     frameTimer = 0.f;
-    frameWidth = 64;
-    frameHeight = 64;
-    totalFrames = 2;
+    frameWidth = 20;
+    frameHeight = 26;
+    totalFrames = 6;
     currentFrame = 0;
     if (!texturebomb.loadFromFile("Sprites/bomb/bomb.png"))
     {
         cout << "ERROR LOADING SPRITE" << endl;
     }
     spritebomb = new Sprite(texturebomb);
-    spritebomb->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
-    spritebomb->setScale({ 2.f, 2.f });
+    spritebomb->setTextureRect(IntRect({ 0, 0 }, { 20, 26 }));
+    spritebomb->setScale({ 1.6f, 1.2307f });
     respawnbomb();
 }
 

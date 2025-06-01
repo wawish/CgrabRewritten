@@ -49,6 +49,8 @@ public:
 class Money
 	{
 	public:
+		SoundBuffer takeCoin;
+		Sound* coinSounds;
 		Texture texturecoin;
 		Sprite* spritecoin;
 		float randomValX;
@@ -71,6 +73,8 @@ class Money
 class Bomb
 {
 public:
+	SoundBuffer takeBomb;
+	Sound* bombSounds;
 	Texture texturebomb;
 	Sprite* spritebomb;
 	float randomValX;
@@ -96,14 +100,20 @@ public:
 	gameWindow window;
 	Player player;
 	Money coin[10];
-	Bomb bomb[100];
+	Bomb bomb[25];
 	int activeCoins;
 	int activeBombs;
-	int lastcoinThreshold;   // <-- add this
-	int lastbombThreshold;   // <-- and this
+	int lastcoinThreshold;
+	int lastbombThreshold;
 
 	gameEngine();
 	void run();
+	/*void spawnbombs();
+	void spawncoins();
+	void scoremultiplier();
+	void clearbombs();
+	void gainhealth();
+	void slowbombs();*/
 };
 
 
