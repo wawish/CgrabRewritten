@@ -113,11 +113,15 @@ public:
 class gameEngine
 {
 public:
+	static const int MAX_COINS = 20;
+	static const int MAX_BOMBS = 30;
+	static const int MAX_POWERUPS = 10;
+
 	gameWindow window;
 	Player player;
-	Money coin[10];
-	Bomb bomb[25];
-	Powerups power[5];
+	Money coin[MAX_COINS];
+	Bomb bomb[MAX_BOMBS];
+	Powerups power[MAX_POWERUPS];
 	int activeCoins;
 	int activeBombs;
 	int activePowerups;

@@ -32,7 +32,7 @@ void gameEngine::spawncoins(float x)
 
 void gameEngine::spawnbombs(float x)
 {
-    for (int i = 0; i < activeBombs; i++) { //falling bombs
+    for (int i = 0; i < activeBombs && i < MAX_BOMBS; i++) { //falling bombs
         bomb[i].updatebomb(x);
         bomb[i].renderbomb(window.window);
     }
@@ -86,6 +86,7 @@ void gameEngine::collisionchecker()
             case 12:
                 cout << "Clearing Bombs...(5 less bombs)" << endl;
                 activeBombs -= 5;
+                if (activeBombs < 0) activeBombs = 0;
                 break;
             case 13:case 14: case 15: case 16:case 17:
                 cout << "Unlucky! Added 1 Bomb" << endl;
@@ -107,7 +108,7 @@ void gameEngine::thresholdchecker()
     int cointhreshold = player.score / 500; //coin ramp up
     if (cointhreshold > lastcoinThreshold && activeCoins < 10) {
         cout << "THRESHOLD REACHED! Amount of Coins: " << activeCoins << " Score: " << player.score << endl;
-        activeCoins++;
+        if(activeCoins < MAX_COINS) activeCoins++;
         for (int i = 0; i < activeCoins; ++i) {
             coin[i].coinFallspeed += 50.f;
         }
@@ -118,9 +119,9 @@ void gameEngine::thresholdchecker()
     int bombthreshold = player.score / 1000; //bomb ramp up
     if (bombthreshold > lastbombThreshold && activeBombs < 25) {
         cout << "THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
-        activeBombs++;
+        if (activeBombs < MAX_BOMBS) activeBombs++;
         for (int i = 0; i < activeBombs; ++i) {
-            bomb[i].bombFallspeed += 50.f;
+            bomb[i].bombFallspeed += 5.f;
         }
         lastbombThreshold = bombthreshold;
     }
@@ -128,18 +129,25 @@ void gameEngine::thresholdchecker()
     int powerthreshold = player.score / 1500; //Power ramp up
     if (powerthreshold > lastpowerThreshold && activePowerups < 5) {
         cout << "THRESHOLD REACHED! Amount of Powerups: " << activePowerups << endl;
-        activePowerups++;
+        if (activePowerups < MAX_POWERUPS) activePowerups++;
         for (int i = 0; i < activePowerups; ++i) {
             power[i].powerupFallspeed += 25.f;
         }
         lastpowerThreshold = powerthreshold;
     }
+
+    
 }
 
 void gameEngine::run()
 {
     sf::Clock clock;
     while (window.window->isOpen()) {
+        if (activeCoins > MAX_COINS) activeCoins = MAX_COINS;
+        if (activeBombs > MAX_BOMBS) activeBombs = MAX_BOMBS;
+        if (activePowerups > MAX_POWERUPS) activePowerups = MAX_POWERUPS;
+        if (activeBombs < 0) activeBombs = 0;
+        if (activePowerups < 0) activePowerups = 0;
         float delta = clock.restart().asSeconds(); //delta time var
         window.window->clear(); //clears the window
         player.checkEvent(window.window, delta); //keystroke checker
