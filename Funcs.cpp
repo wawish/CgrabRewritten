@@ -6,14 +6,134 @@
 
 using namespace sf;
 using namespace std;
+void randomNumber()
+{
+    srand(time(NULL));
+}
 
 gameEngine::gameEngine()
     : window(), player(window.window)
 {
-    activeCoins = 5; //coins currently onscreen
-    activeBombs = 3; //bombs currently onscreen
+    activeCoins = 1; //coins currently onscreen
+    activeBombs = 0; //bombs currently onscreen
+    activePowerups = 0;
     lastcoinThreshold = 0; //stores the current threshold for coins
     lastbombThreshold = 0; //stores the current threshold for bombs
+    activePowerups = 0;
+}
+
+void gameEngine::spawncoins(float x)
+{
+    for (int i = 0; i < activeCoins; i++) { //falling coins
+        coin[i].updatecoin(x);
+        coin[i].rendercoin(window.window);
+    }
+}
+
+void gameEngine::spawnbombs(float x)
+{
+    for (int i = 0; i < activeBombs; i++) { //falling bombs
+        bomb[i].updatebomb(x);
+        bomb[i].renderbomb(window.window);
+    }
+}
+
+void gameEngine::spawnpowerups(float x)
+{
+    for (int i = 0; i < activePowerups; i++) { //falling powerup
+        power[i].updatePowerup(x);
+        power[i].renderPowerup(window.window);
+    }
+}
+
+void gameEngine::collisionchecker()
+{
+    for (int i = 0; i < activeCoins; i++) { //collision checker for coins
+        if (coin[i].spritecoin->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
+            player.score += 100 * player.scoremultiplier;
+            if (rand() % 10 + 1 == 1)activeBombs += 1;
+            coin[i].coinSounds->play();
+            cout << "hit! " << player.score << endl;
+            coin[i].respawncoin();
+        }
+    }
+    for (int i = 0; i < activeBombs; i++) { //collision checker for bombs
+        if (bomb[i].spritebomb->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
+            player.health -= 1;
+            bomb[i].bombSounds->play();
+            cout << "explode! " << player.health << endl;
+            bomb[i].respawnbomb();
+        }
+    }
+    for (int i = 0; i < activePowerups; i++) { //collision checker for bombs
+        if (power[i].randomPowerSprite->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
+            coin[i].coinSounds->play();
+            int chosen = rand() % 30 + 1;
+            
+            switch (chosen)
+            {
+            case 1:case 2:case 3:case 4: case 5:
+                cout << "1 Health Added!" << endl;
+                player.health += 1;
+                break;
+            case 6:case 7:case 8:case 9: case 10:
+                cout << "Bombs are slowed!" << endl;
+                break;
+            case 11:
+                cout << player.scoremultiplier + 1 << " Multiplier! " << endl;
+                player.scoremultiplier += 1;
+                break;
+            case 12:
+                cout << "Clearing Bombs...(5 less bombs)" << endl;
+                activeBombs -= 5;
+                break;
+            case 13:case 14: case 15: case 16:case 17:
+                cout << "Unlucky! Added 1 Bomb" << endl;
+                activeBombs += 1;
+                break;
+            default:
+                cout << "Nothing! (Be happy)" << endl;
+                break;
+            }
+
+            power[i].respawnPowerup();
+        }
+    }
+
+}
+
+void gameEngine::thresholdchecker()
+{
+    int cointhreshold = player.score / 500; //coin ramp up
+    if (cointhreshold > lastcoinThreshold && activeCoins < 10) {
+        cout << "THRESHOLD REACHED! Amount of Coins: " << activeCoins << " Score: " << player.score << endl;
+        activeCoins++;
+        for (int i = 0; i < activeCoins; ++i) {
+            coin[i].coinFallspeed += 50.f;
+        }
+        lastcoinThreshold = cointhreshold;
+    }
+
+
+    int bombthreshold = player.score / 1000; //bomb ramp up
+    if (bombthreshold > lastbombThreshold && activeBombs < 25) {
+        cout << "THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
+        activeBombs++;
+        for (int i = 0; i < activeBombs; ++i) {
+            bomb[i].bombFallspeed += 50.f;
+        }
+        lastbombThreshold = bombthreshold;
+    }
+
+    int powerthreshold = player.score / 1500; //Power ramp up
+    if (powerthreshold > lastpowerThreshold && activePowerups < 5) {
+        cout << "THRESHOLD REACHED! Amount of Powerups: " << activePowerups << endl;
+        activePowerups++;
+        for (int i = 0; i < activePowerups; ++i) {
+            power[i].powerupFallspeed += 25.f;
+        }
+        lastpowerThreshold = powerthreshold;
+    }
 }
 
 void gameEngine::run()
@@ -24,52 +144,12 @@ void gameEngine::run()
         window.window->clear(); //clears the window
         player.checkEvent(window.window, delta); //keystroke checker
         player.renderplayer(window.window); //draws the player
-
-        for (int i = 0; i < activeCoins; i++) { //falling coins
-            coin[i].updatecoin(delta);
-            coin[i].rendercoin(window.window);
-        }
-        for (int i = 0; i < activeBombs; i++) { //falling bombs
-            bomb[i].updatebomb(delta);
-            bomb[i].renderbomb(window.window);
-        }
-        for (int i = 0; i < activeCoins; i++) { //collision checker for coins
-            if (coin[i].spritecoin->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
-                player.score += 100;
-                coin[i].coinSounds->play();
-                cout << "hit! " << player.score << endl;
-                coin[i].respawncoin();
-            }
-        }
-        for (int i = 0; i < activeBombs; i++) { //collision checker for bombs
-            if (bomb[i].spritebomb->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
-                player.health -= 1;
-                bomb[i].bombSounds->play();
-                cout << "explode! " << player.health << endl;
-                bomb[i].respawnbomb();
-            }
-        }
-
-        int cointhreshold = player.score / 100; //coin ramp up
-        if (cointhreshold > lastcoinThreshold && activeCoins < 10) {
-            cout << "THRESHOLD REACHED! " << player.score << endl;
-            activeCoins++;
-            for (int i = 0; i < activeCoins; ++i) {
-                coin[i].coinFallspeed += 50.f;
-            }
-            lastcoinThreshold = cointhreshold;
-        }
-
-
-        int bombthreshold = player.score / 1000; //bomb ramp up
-        if (bombthreshold > lastbombThreshold && activeBombs < 25) {
-            cout << "THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
-            activeBombs++;
-            for (int i = 0; i < activeBombs; ++i) {
-                bomb[i].bombFallspeed += 50.f;
-            }   
-            lastbombThreshold = bombthreshold;
-        }
+        spawncoins(delta);
+        spawnbombs(delta);
+        spawnpowerups(delta);
+        collisionchecker();
+        thresholdchecker();
+        
 
         window.window->display(); //draws the screen
     }
@@ -93,6 +173,7 @@ Player::~Player() //deconstructor
  
 Player::Player(RenderWindow* l)
 {  
+    scoremultiplier = 1;
     score = 0;
     health = 25;
     if (!textureplayer.loadFromFile("Sprites/player/playerwalk.png")) //checks if it load properly
@@ -251,8 +332,8 @@ void Bomb::respawnbomb() {
     fallSpeed = bombFallspeed + getRandomNumber() * 100.f;
 }
 
-void Bomb::updatebomb(float deltaTime) {
-    frameTimer += deltaTime;
+void Bomb::updatebomb(float x) {
+    frameTimer += x;
 
     if (frameTimer >= frameDuration) {
         currentFrame = (currentFrame + 1) % totalFrames;
@@ -262,7 +343,7 @@ void Bomb::updatebomb(float deltaTime) {
 
     auto Xpos = spritebomb->getPosition().x;
     auto Ypos = spritebomb->getPosition().y;
-    spritebomb->setPosition({ Xpos, Ypos + fallSpeed * deltaTime });
+    spritebomb->setPosition({ Xpos, Ypos + fallSpeed * x });
 
     if (spritebomb->getPosition().y > 720) {
         respawnbomb();
@@ -272,4 +353,43 @@ void Bomb::updatebomb(float deltaTime) {
 void Bomb::renderbomb(RenderWindow* l)
 {
     l->draw(*spritebomb);
+}
+
+Powerups::Powerups()
+{
+    powerupFallspeed = 200.f;
+    if (!PowerTexture.loadFromFile("Sprites/powerups/powerups.png")) //checks if it load properly
+    {
+        cout << "ERROR LOADING SPRITE" << endl;
+    }
+    randomPowerSprite = new Sprite(PowerTexture);
+    randomPowerSprite->setTextureRect(IntRect({ 1008, 0 }, { 48, 48 }));
+    randomPowerSprite->setScale({ 1.f, 1.f });
+    respawnPowerup();
+
+}
+
+void Powerups::respawnPowerup()
+{
+    randomValue = (1280 - 32) * getRandomNumber();
+    float y = 0.f;
+    randomPowerSprite->setPosition({ randomValue, y });
+    fallSpeed = powerupFallspeed + getRandomNumber() * 100.f;
+}
+
+void Powerups::updatePowerup(float y)
+{
+    auto Xpos = randomPowerSprite->getPosition().x;
+    auto Ypos = randomPowerSprite->getPosition().y;
+    randomPowerSprite->setPosition({ Xpos, Ypos + fallSpeed * y });
+
+    if (randomPowerSprite->getPosition().y > 720 && rand() % 8 + 1 >= 4) {
+        respawnPowerup();
+    }
+
+}
+
+void Powerups::renderPowerup(RenderWindow* l)
+{
+    l->draw(*randomPowerSprite);
 }

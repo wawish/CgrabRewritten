@@ -42,6 +42,7 @@ public:
 	void renderplayer(RenderWindow*);
 	Player(RenderWindow*);
 	int score;
+	int scoremultiplier;
 	int health;
 	~Player();
 };
@@ -94,6 +95,21 @@ private:
 
 };
 
+class Powerups
+{
+public:
+	Powerups();
+	float randomValue;
+	float powerupFallspeed;
+	float fallSpeed;
+	Texture PowerTexture;
+	Sprite* randomPowerSprite;
+	void respawnPowerup();
+	void updatePowerup(float);
+	void renderPowerup(RenderWindow*);
+
+};
+
 class gameEngine
 {
 public:
@@ -101,19 +117,21 @@ public:
 	Player player;
 	Money coin[10];
 	Bomb bomb[25];
+	Powerups power[5];
 	int activeCoins;
 	int activeBombs;
+	int activePowerups;
 	int lastcoinThreshold;
 	int lastbombThreshold;
+	int lastpowerThreshold;
 
 	gameEngine();
 	void run();
-	/*void spawnbombs();
-	void spawncoins();
-	void scoremultiplier();
-	void clearbombs();
-	void gainhealth();
-	void slowbombs();*/
+	void spawnbombs(float);
+	void spawncoins(float);
+	void spawnpowerups(float);
+	void collisionchecker();
+	void thresholdchecker();
 };
 
 
