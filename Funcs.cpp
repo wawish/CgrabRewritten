@@ -22,8 +22,18 @@ gameEngine::gameEngine()
     activePowerups = 0;
 }
 
+void gameEngine::clamp()
+{
+    if (activeCoins > MAX_COINS) activeCoins = MAX_COINS;
+    if (activeBombs > MAX_BOMBS) activeBombs = MAX_BOMBS;
+    if (activePowerups > MAX_POWERUPS) activePowerups = MAX_POWERUPS;
+    if (activeBombs < 0) activeBombs = 0;
+    if (activePowerups < 0) activePowerups = 0;
+}
+
 void gameEngine::spawncoins(float x)
 {
+    clamp();
     for (int i = 0; i < activeCoins; i++) { //falling coins
         coin[i].updatecoin(x);
         coin[i].rendercoin(window.window);
@@ -32,6 +42,7 @@ void gameEngine::spawncoins(float x)
 
 void gameEngine::spawnbombs(float x)
 {
+    clamp();
     for (int i = 0; i < activeBombs && i < MAX_BOMBS; i++) { //falling bombs
         bomb[i].updatebomb(x);
         bomb[i].renderbomb(window.window);
@@ -40,6 +51,7 @@ void gameEngine::spawnbombs(float x)
 
 void gameEngine::spawnpowerups(float x)
 {
+    clamp();
     for (int i = 0; i < activePowerups; i++) { //falling powerup
         power[i].updatePowerup(x);
         power[i].renderPowerup(window.window);
@@ -48,10 +60,11 @@ void gameEngine::spawnpowerups(float x)
 
 void gameEngine::collisionchecker()
 {
+    clamp();
     for (int i = 0; i < activeCoins; i++) { //collision checker for coins
         if (coin[i].spritecoin->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
             player.score += 100 * player.scoremultiplier;
-            if (rand() % 10 + 1 == 1)activeBombs += 1;
+            if (rand() % 10 + 1 == 1 && activeBombs < MAX_BOMBS)activeBombs += 1;
             coin[i].coinSounds->play();
             cout << "hit! " << player.score << endl;
             coin[i].respawncoin();
@@ -62,7 +75,7 @@ void gameEngine::collisionchecker()
             player.health -= 1;
             bomb[i].bombSounds->play();
             cout << "explode! " << player.health << endl;
-            bomb[i].respawnbomb();
+            bomb[i].respawnbomb(0);
         }
     }
     for (int i = 0; i < activePowerups; i++) { //collision checker for bombs
@@ -85,8 +98,9 @@ void gameEngine::collisionchecker()
                 break;
             case 12:
                 cout << "Clearing Bombs...(5 less bombs)" << endl;
-                activeBombs -= 5;
-                if (activeBombs < 0) activeBombs = 0;
+                for (int i = 0; i < activeBombs && i < MAX_BOMBS; i++) { //falling bombs
+                    bomb[i].respawnbomb(-5000);
+                }
                 break;
             case 13:case 14: case 15: case 16:case 17:
                 cout << "Unlucky! Added 1 Bomb" << endl;
@@ -105,6 +119,7 @@ void gameEngine::collisionchecker()
 
 void gameEngine::thresholdchecker()
 {
+    clamp();
     int cointhreshold = player.score / 500; //coin ramp up
     if (cointhreshold > lastcoinThreshold && activeCoins < 10) {
         cout << "THRESHOLD REACHED! Amount of Coins: " << activeCoins << " Score: " << player.score << endl;
@@ -141,13 +156,9 @@ void gameEngine::thresholdchecker()
 
 void gameEngine::run()
 {
+    clamp();
     sf::Clock clock;
     while (window.window->isOpen()) {
-        if (activeCoins > MAX_COINS) activeCoins = MAX_COINS;
-        if (activeBombs > MAX_BOMBS) activeBombs = MAX_BOMBS;
-        if (activePowerups > MAX_POWERUPS) activePowerups = MAX_POWERUPS;
-        if (activeBombs < 0) activeBombs = 0;
-        if (activePowerups < 0) activePowerups = 0;
         float delta = clock.restart().asSeconds(); //delta time var
         window.window->clear(); //clears the window
         player.checkEvent(window.window, delta); //keystroke checker
@@ -330,12 +341,11 @@ Bomb::Bomb()
     spritebomb = new Sprite(texturebomb);
     spritebomb->setTextureRect(IntRect({ 0, 0 }, { 20, 26 }));
     spritebomb->setScale({ 1.6f, 1.2307f });
-    respawnbomb();
+    respawnbomb(0);
 }
 
-void Bomb::respawnbomb() {
+void Bomb::respawnbomb(float y) {
     randomValX = (1280 - 32) * getRandomNumber();
-    float y = 0.f;
     spritebomb->setPosition({ randomValX, y });
     fallSpeed = bombFallspeed + getRandomNumber() * 100.f;
 }
@@ -354,7 +364,7 @@ void Bomb::updatebomb(float x) {
     spritebomb->setPosition({ Xpos, Ypos + fallSpeed * x });
 
     if (spritebomb->getPosition().y > 720) {
-        respawnbomb();
+        respawnbomb(0);
     }
 }
 

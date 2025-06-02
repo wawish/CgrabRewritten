@@ -62,7 +62,6 @@ class Money
 		void updatecoin(float);
 		void rendercoin(RenderWindow*);
 	private:
-		int maxGoldCount;
 		float frameDuration;
 		float frameTimer;
 		int frameWidth;
@@ -81,7 +80,7 @@ public:
 	float randomValX;
 	float bombFallspeed;
 	float fallSpeed;
-	void respawnbomb();
+	void respawnbomb(float);
 	Bomb();
 	void updatebomb(float);
 	void renderbomb(RenderWindow*);
@@ -136,6 +135,7 @@ public:
 	void spawnpowerups(float);
 	void collisionchecker();
 	void thresholdchecker();
+	void clamp();
 };
 
 
