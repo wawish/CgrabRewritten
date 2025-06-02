@@ -17,7 +17,7 @@ using namespace std;
 class gameMenu
 {
 public:
-	Font mainfont;
+	/*Font mainfont;*/
 	Sprite* spritebuttonPlay, spritebuttonQuit, spritebuttonSettings, spriteLogo;
 	Sound onClick, onHover;
 	Music* bgmMusic;
@@ -32,12 +32,13 @@ public:
 	~gameWindow();	
 	Texture texturebg;
 	Sprite* spritebg;
+	Font gameFont;
+	Text *T_health, *T_score, *T_bombs, *T_coins, *T_multiplier, *T_status;
 };
 
 class Player
 {
 private:
-	float length, width;
 	float playerX;
 	float moveSpeed;
 	
@@ -131,6 +132,7 @@ public:
 	Money coin[MAX_COINS];
 	Bomb bomb[MAX_BOMBS];
 	Powerups power[MAX_POWERUPS];
+	String status;
 	int activeCoins;
 	int activeBombs;
 	int activePowerups;
@@ -140,6 +142,7 @@ public:
 
 	
 	void run();
+	void updatetext();
 	void spawnbombs(float);
 	void spawncoins(float);
 	void spawnpowerups(float);

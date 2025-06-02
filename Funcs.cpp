@@ -19,6 +19,7 @@ gameEngine::gameEngine()
     activePowerups = 0;
     lastcoinThreshold = 0; //stores the current threshold for coins
     lastbombThreshold = 0; //stores the current threshold for bombs
+    lastpowerThreshold = 0;
     activePowerups = 0;
 }
 
@@ -67,6 +68,7 @@ void gameEngine::collisionchecker()
             if (rand() % 10 + 1 == 1 && activeBombs < MAX_BOMBS)activeBombs += 1;
             coin[i].coinSounds->play();
             cout << "hit! " << player.score << endl;
+            status = "hit! " + to_string(player.score);
             coin[i].respawncoin();
         }
     }
@@ -75,6 +77,7 @@ void gameEngine::collisionchecker()
             player.health -= 1;
             bomb[i].bombSounds->play();
             cout << "explode! " << player.health << endl;
+            status = "explode! " + to_string(player.health);
             bomb[i].respawnbomb(0);
         }
     }
@@ -87,25 +90,31 @@ void gameEngine::collisionchecker()
             {
             case 1:case 2:case 3:case 4: case 5:
                 cout << "1 Health Added!" << endl;
+                status = "1 Health Added!";
                 player.health += 1;
                 break;
             case 6:case 7:case 8:case 9: case 10:
                 cout << "Bombs are slowed!" << endl;
+                status = "Bombs are slowed!";
                 break;
             case 11:
                 cout << player.scoremultiplier + 1 << " Multiplier! " << endl;
+                status = to_string(player.scoremultiplier + 1) + " Multiplier!";
                 player.scoremultiplier += 1;
                 break;
             case 12:
                 cout << "Clearing Bombs..." << endl;
+                status = "Clearing Bombs...";
                 activeBombs = 0;
                 break;
             case 13:case 14: case 15: case 16: case 17:
                 cout << "Unlucky! Added 1 Bomb" << endl;
+                status = "Unlucky! Added 1 Bomb";
                 activeBombs += 1;
                 break;
             default:
                 cout << "Nothing! (Be happy)" << endl;
+                status = "Nothing! (Be happy)";
                 break;
             }
 
@@ -157,6 +166,23 @@ void gameEngine::thresholdchecker()
     
 }
 
+void gameEngine::updatetext()
+{
+    window.T_health->setString("Health: " + to_string(player.health));
+    window.T_score->setString("Score: " + to_string(player.score));
+    window.T_bombs->setString("Bombs: " + to_string(activeBombs));
+    window.T_coins->setString("Coins: " + to_string(activeCoins));
+    window.T_multiplier->setString("Multiplier: x" + to_string(player.scoremultiplier));
+    window.T_status->setString(status);
+
+    window.window->draw(*window.T_health);
+    window.window->draw(*window.T_score);
+    window.window->draw(*window.T_bombs);
+    window.window->draw(*window.T_coins);
+    window.window->draw(*window.T_multiplier);
+    window.window->draw(*window.T_status);
+}
+
 void gameEngine::run()
 {
     clamp();
@@ -169,6 +195,7 @@ void gameEngine::run()
         float delta = clock.restart().asSeconds(); //delta time var
         window.window->clear(); //clears the window
         window.window->draw(*window.spritebg);
+        updatetext();
         player.checkEvent(window.window, delta); //keystroke checker
         player.renderplayer(window.window); //draws the player
         spawncoins(delta);
@@ -184,6 +211,40 @@ void gameEngine::run()
 
 gameWindow::gameWindow()
 {
+    if (!gameFont.openFromFile("Sprites/Fonts/ka1.ttf"))
+    {
+        cout << "ERROR LOADING FONT" << endl;
+    }
+    T_health = new Text(gameFont);
+    T_score = new Text(gameFont);
+    T_bombs = new Text(gameFont);
+    T_coins = new Text(gameFont);
+    T_multiplier = new Text(gameFont);
+    T_status = new Text(gameFont);
+
+    T_health->setCharacterSize(32);
+    T_score->setCharacterSize(32);
+    T_bombs->setCharacterSize(32);
+    T_coins->setCharacterSize(32);
+    T_multiplier->setCharacterSize(32);
+    T_status->setCharacterSize(24);
+    
+    T_health->setPosition({ 0, PLAY_OFFSET_Y + 0.f });
+    T_score->setPosition({ 0, PLAY_OFFSET_Y + 40.f });
+    T_bombs->setPosition({ 0, PLAY_OFFSET_Y + 80.f });
+    T_coins->setPosition({ 0, PLAY_OFFSET_Y + 120.f });
+    T_multiplier->setPosition({ 0, PLAY_OFFSET_Y + 160.f });
+    T_status->setPosition({ 0, PLAY_OFFSET_Y + 200.f });
+
+    T_health->setFillColor({ 0, 0, 0 });
+    T_score->setFillColor({ 0, 0, 0 });
+    T_bombs->setFillColor({ 0, 0, 0 });
+    T_coins->setFillColor({ 0, 0, 0 });
+    T_multiplier->setFillColor({ 0, 0, 0 });
+    T_status->setFillColor({ 0, 0, 0 });
+    
+    
+    
     window = new RenderWindow(VideoMode({ 1920, 1080 }), "Cash Grab!"); //initializes the window
     window->setFramerateLimit(60);
     if (!texturebg.loadFromFile("Sprites/bg/testbg.png")) //checks if it load properly
@@ -198,6 +259,12 @@ gameWindow::gameWindow()
 gameWindow::~gameWindow() //deconstructor
 {
     delete window;
+    delete spritebg;
+    delete T_health;
+    delete T_coins;
+    delete T_bombs;
+    delete T_status;
+    delete T_score;
 }
 
 Player::~Player() //deconstructor
