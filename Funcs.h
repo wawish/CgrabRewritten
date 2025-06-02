@@ -4,6 +4,13 @@
 #include <SFML/Audio.hpp>
 #include <iostream>
 
+#define PLAY_WIDTH 1280
+#define PLAY_HEIGHT 720
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
+#define PLAY_OFFSET_X ((WINDOW_WIDTH - PLAY_WIDTH) / 2)
+#define PLAY_OFFSET_Y ((WINDOW_HEIGHT - PLAY_HEIGHT) / 2)
+
 using namespace sf;
 using namespace std;
 
@@ -14,7 +21,6 @@ public:
 	Sprite* spritebuttonPlay, spritebuttonQuit, spritebuttonSettings, spriteLogo;
 	Sound onClick, onHover;
 	Music* bgmMusic;
-
 };
 
 class gameWindow
@@ -24,6 +30,8 @@ public:
 	RenderWindow* window;
 	gameWindow();
 	~gameWindow();	
+	Texture texturebg;
+	Sprite* spritebg;
 };
 
 class Player
@@ -34,13 +42,13 @@ private:
 	float moveSpeed;
 	
 public:
+	Player(RenderWindow*);
 	Texture textureplayer;
 	Sprite* spriteplayer;
 	void checkEvent(RenderWindow*, float);
 	void moveRight(float);
 	void moveLeft(float);
 	void renderplayer(RenderWindow*);
-	Player(RenderWindow*);
 	int score;
 	int scoremultiplier;
 	int health;
@@ -50,6 +58,7 @@ public:
 class Money
 	{
 	public:
+		Money();
 		SoundBuffer takeCoin;
 		Sound* coinSounds;
 		Texture texturecoin;
@@ -58,7 +67,6 @@ class Money
 		float coinFallspeed;
 		float fallSpeed;
 		void respawncoin();
-		Money();
 		void updatecoin(float);
 		void rendercoin(RenderWindow*);
 	private:
@@ -73,6 +81,7 @@ class Money
 class Bomb
 {
 public:
+	Bomb();
 	SoundBuffer takeBomb;
 	Sound* bombSounds;
 	Texture texturebomb;
@@ -80,8 +89,8 @@ public:
 	float randomValX;
 	float bombFallspeed;
 	float fallSpeed;
+	float bombAcceleration;
 	void respawnbomb(float);
-	Bomb();
 	void updatebomb(float);
 	void renderbomb(RenderWindow*);
 private:
@@ -112,9 +121,10 @@ public:
 class gameEngine
 {
 public:
-	static const int MAX_COINS = 20;
-	static const int MAX_BOMBS = 30;
-	static const int MAX_POWERUPS = 10;
+	gameEngine();
+	static const int MAX_COINS = 15;
+	static const int MAX_BOMBS = 25;
+	static const int MAX_POWERUPS = 3;
 
 	gameWindow window;
 	Player player;
@@ -128,7 +138,7 @@ public:
 	int lastbombThreshold;
 	int lastpowerThreshold;
 
-	gameEngine();
+	
 	void run();
 	void spawnbombs(float);
 	void spawncoins(float);

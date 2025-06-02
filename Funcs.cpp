@@ -3,9 +3,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
-
 using namespace sf;
 using namespace std;
+
 void randomNumber()
 {
     srand(time(NULL));
@@ -97,12 +97,10 @@ void gameEngine::collisionchecker()
                 player.scoremultiplier += 1;
                 break;
             case 12:
-                cout << "Clearing Bombs...(5 less bombs)" << endl;
-                for (int i = 0; i < activeBombs && i < MAX_BOMBS; i++) { //falling bombs
-                    bomb[i].respawnbomb(-5000);
-                }
+                cout << "Clearing Bombs..." << endl;
+                activeBombs = 0;
                 break;
-            case 13:case 14: case 15: case 16:case 17:
+            case 13:case 14: case 15: case 16: case 17:
                 cout << "Unlucky! Added 1 Bomb" << endl;
                 activeBombs += 1;
                 break;
@@ -132,11 +130,16 @@ void gameEngine::thresholdchecker()
 
 
     int bombthreshold = player.score / 1000; //bomb ramp up
+    int oldActiveBombs = activeBombs;
     if (bombthreshold > lastbombThreshold && activeBombs < 25) {
         cout << "THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
         if (activeBombs < MAX_BOMBS) activeBombs++;
         for (int i = 0; i < activeBombs; ++i) {
             bomb[i].bombFallspeed += 5.f;
+            // Only respawn new bombs
+            if (i >= oldActiveBombs) {
+                bomb[i].respawnbomb(0);
+            }
         }
         lastbombThreshold = bombthreshold;
     }
@@ -159,8 +162,13 @@ void gameEngine::run()
     clamp();
     sf::Clock clock;
     while (window.window->isOpen()) {
+        if (player.health <= 0) //this is temporary
+        {
+            window.window->close();
+        }
         float delta = clock.restart().asSeconds(); //delta time var
         window.window->clear(); //clears the window
+        window.window->draw(*window.spritebg);
         player.checkEvent(window.window, delta); //keystroke checker
         player.renderplayer(window.window); //draws the player
         spawncoins(delta);
@@ -176,8 +184,15 @@ void gameEngine::run()
 
 gameWindow::gameWindow()
 {
-    window = new RenderWindow(VideoMode({ 1280, 720 }), "Cash Grab!"); //initializes the window
+    window = new RenderWindow(VideoMode({ 1920, 1080 }), "Cash Grab!"); //initializes the window
     window->setFramerateLimit(60);
+    if (!texturebg.loadFromFile("Sprites/bg/testbg.png")) //checks if it load properly
+    {
+        cout << "ERROR LOADING SPRITE" << endl;
+    }
+    spritebg = new Sprite(texturebg);
+    spritebg->setPosition({ 0.f, 0.f });
+
 }
 
 gameWindow::~gameWindow() //deconstructor
@@ -194,7 +209,7 @@ Player::Player(RenderWindow* l)
 {  
     scoremultiplier = 1;
     score = 0;
-    health = 25;
+    health = 5;
     if (!textureplayer.loadFromFile("Sprites/player/playerwalk.png")) //checks if it load properly
     {
         cout << "ERROR LOADING SPRITE" << endl;
@@ -203,8 +218,8 @@ Player::Player(RenderWindow* l)
     spriteplayer->setTextureRect(IntRect({ 0, 0 }, { 24, 32 })); //sets the sprite as a rectangle
     spriteplayer->setScale({ 3.0f, 3.0f }); //triples the size
     moveSpeed = 700.f; //init for player ms
-    playerX = 600.f; //init for startpos
-    spriteplayer->setPosition({ playerX, 624.f });
+    playerX = WINDOW_WIDTH / 2; //init for startpos
+    spriteplayer->setPosition({ playerX, PLAY_OFFSET_Y + PLAY_HEIGHT - spriteplayer->getGlobalBounds().size.y });
 
 }
 
@@ -240,22 +255,22 @@ void Player::moveRight(float x)
 {
     playerX += moveSpeed * x;
     float spriteWidth = spriteplayer->getGlobalBounds().size.x;
-    float windowWidth = 1280.f;
-    if (playerX + spriteWidth > windowWidth) {
-        playerX = windowWidth - spriteWidth;
+    float minX = PLAY_OFFSET_X;
+    float maxX = PLAY_OFFSET_X + PLAY_WIDTH - spriteWidth;
+    if (playerX > maxX) {
+        playerX = maxX;
     }
-    spriteplayer->setPosition({ playerX, 624.f });
+    spriteplayer->setPosition({ playerX, PLAY_OFFSET_Y + PLAY_HEIGHT - spriteplayer->getGlobalBounds().size.y });
 }
 
 void Player::moveLeft(float x)
 {
     playerX -= moveSpeed * x;
-    spriteplayer->setPosition({ playerX, 624.f });
-    auto bounds = spriteplayer->getGlobalBounds();
-    if (bounds.position.x < 0.f) {
-        playerX = 0.f;
-        spriteplayer->setPosition({ 0.f, 624.f });
+    float minX = PLAY_OFFSET_X;
+    if (playerX < minX) {
+        playerX = minX;
     }
+    spriteplayer->setPosition({ playerX, PLAY_OFFSET_Y + PLAY_HEIGHT - spriteplayer->getGlobalBounds().size.y });
 }
 
 float getRandomNumber() {
@@ -291,8 +306,8 @@ Money::Money()
 }
 
 void Money::respawncoin() {
-    randomValX = (1280 - 32) * getRandomNumber();
-    float y = 0.f;
+    randomValX = PLAY_OFFSET_X + (PLAY_WIDTH - 32) * getRandomNumber();
+    float y = PLAY_OFFSET_Y;
     spritecoin->setPosition({ randomValX, y });
     fallSpeed = coinFallspeed + getRandomNumber() * 100.f;
 }
@@ -310,7 +325,7 @@ void Money::updatecoin(float deltaTime) {
     auto Ypos = spritecoin->getPosition().y;
     spritecoin->setPosition({ Xpos, Ypos + fallSpeed * deltaTime });
 
-    if (spritecoin->getPosition().y > 720) {
+    if (spritecoin->getPosition().y > PLAY_OFFSET_Y + PLAY_HEIGHT - spritecoin->getGlobalBounds().size.y) {
         respawncoin();
     }
 }
@@ -328,6 +343,7 @@ Bomb::Bomb()
     bombSounds = new Sound(takeBomb);
     bombSounds->setBuffer(takeBomb);
     bombFallspeed = 200.f;
+    bombAcceleration = 1.f;
     frameDuration = 0.1f;
     frameTimer = 0.f;
     frameWidth = 20;
@@ -345,9 +361,9 @@ Bomb::Bomb()
 }
 
 void Bomb::respawnbomb(float y) {
-    randomValX = (1280 - 32) * getRandomNumber();
-    spritebomb->setPosition({ randomValX, y });
-    fallSpeed = bombFallspeed + getRandomNumber() * 100.f;
+    randomValX = PLAY_OFFSET_X + (PLAY_WIDTH - 32) * getRandomNumber();
+    spritebomb->setPosition({ randomValX, PLAY_OFFSET_Y + y });
+    fallSpeed = bombFallspeed + getRandomNumber() * 100.f * bombAcceleration;
 }
 
 void Bomb::updatebomb(float x) {
@@ -361,9 +377,9 @@ void Bomb::updatebomb(float x) {
 
     auto Xpos = spritebomb->getPosition().x;
     auto Ypos = spritebomb->getPosition().y;
-    spritebomb->setPosition({ Xpos, Ypos + fallSpeed * x });
+    spritebomb->setPosition({ Xpos, Ypos + fallSpeed * x * bombAcceleration });
 
-    if (spritebomb->getPosition().y > 720) {
+    if (spritebomb->getPosition().y > PLAY_OFFSET_Y + PLAY_HEIGHT - spritebomb->getGlobalBounds().size.y) {
         respawnbomb(0);
     }
 }
@@ -381,7 +397,7 @@ Powerups::Powerups()
         cout << "ERROR LOADING SPRITE" << endl;
     }
     randomPowerSprite = new Sprite(PowerTexture);
-    randomPowerSprite->setTextureRect(IntRect({ 1008, 0 }, { 48, 48 }));
+    randomPowerSprite->setTextureRect(IntRect({ 1009, 1 }, { 47, 47 }));
     randomPowerSprite->setScale({ 1.f, 1.f });
     respawnPowerup();
 
@@ -389,8 +405,8 @@ Powerups::Powerups()
 
 void Powerups::respawnPowerup()
 {
-    randomValue = (1280 - 32) * getRandomNumber();
-    float y = 0.f;
+    randomValue = PLAY_OFFSET_X + (PLAY_WIDTH - 32) * getRandomNumber();
+    float y = PLAY_OFFSET_Y;
     randomPowerSprite->setPosition({ randomValue, y });
     fallSpeed = powerupFallspeed + getRandomNumber() * 100.f;
 }
@@ -401,7 +417,7 @@ void Powerups::updatePowerup(float y)
     auto Ypos = randomPowerSprite->getPosition().y;
     randomPowerSprite->setPosition({ Xpos, Ypos + fallSpeed * y });
 
-    if (randomPowerSprite->getPosition().y > 720 && rand() % 8 + 1 >= 4) {
+    if (randomPowerSprite->getPosition().y > PLAY_OFFSET_Y + PLAY_HEIGHT - randomPowerSprite->getGlobalBounds().size.y && rand() % 8 + 1 >= 4) {
         respawnPowerup();
     }
 
