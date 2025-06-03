@@ -21,6 +21,9 @@ gameEngine::gameEngine()
     lastbombThreshold = 0; //stores the current threshold for bombs
     lastpowerThreshold = 0;
     activePowerups = 0;
+    bombsSlowed = false;
+    slowBombTimer = 0.f;
+    bombSlowFactor = 0.5f; // Factor to slow bombs
 }
 
 void gameEngine::clamp()
@@ -96,6 +99,15 @@ void gameEngine::collisionchecker()
             case 6:case 7:case 8:case 9: case 10:
                 cout << "Bombs are slowed!" << endl;
                 status = "Bombs are slowed!";
+                if (!bombsSlowed) {
+                    bombsSlowed = true;
+                    slowBombTimer = 5.f; // 5 seconds
+                    for (int j = 0; j < activeBombs; ++j) {
+                        bomb[j].bombAcceleration = bombSlowFactor;
+                    }
+                } else {
+                    slowBombTimer = 5.f; // Reset timer if already slowed
+                }
                 break;
             case 11:
                 cout << player.scoremultiplier + 1 << " Multiplier! " << endl;
@@ -166,6 +178,19 @@ void gameEngine::thresholdchecker()
     
 }
 
+void gameEngine::bombSlowchecker(float x)
+{
+    if (bombsSlowed) {
+        slowBombTimer -= x;
+        if (slowBombTimer <= 0.f) {
+            bombsSlowed = false;
+            for (int i = 0; i < activeBombs; ++i) {
+                bomb[i].bombAcceleration = 1.f; // Reset bomb acceleration
+            }
+        }
+    }
+}
+
 void gameEngine::updatetext()
 {
     window.T_health->setString("Health: " + to_string(player.health));
@@ -203,6 +228,8 @@ void gameEngine::run()
         spawnpowerups(delta);
         collisionchecker();
         thresholdchecker();
+        bombSlowchecker(delta);
+        
         
 
         window.window->display(); //draws the screen
