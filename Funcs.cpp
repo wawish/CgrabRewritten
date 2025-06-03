@@ -144,7 +144,7 @@ void gameEngine::thresholdchecker()
         cout << "THRESHOLD REACHED! Amount of Coins: " << activeCoins << " Score: " << player.score << endl;
         if(activeCoins < MAX_COINS) activeCoins++;
         for (int i = 0; i < activeCoins; ++i) {
-            coin[i].coinFallspeed += 50.f;
+            coin[i].coinFallspeed += 25.f;
         }
         lastcoinThreshold = cointhreshold;
     }
@@ -156,7 +156,7 @@ void gameEngine::thresholdchecker()
         cout << "THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
         if (activeBombs < MAX_BOMBS) activeBombs++;
         for (int i = 0; i < activeBombs; ++i) {
-            bomb[i].bombFallspeed += 5.f;
+            bomb[i].bombFallspeed += 25.f;
             // Only respawn new bombs
             if (i >= oldActiveBombs) {
                 bomb[i].respawnbomb(0);
@@ -423,7 +423,7 @@ Money::Money()
     }
     spritecoin = new Sprite(texturecoin);
     spritecoin->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
-    spritecoin->setScale({ 2.5f, 2.5f });
+    spritecoin->setScale({ 2.f, 2.f });
     respawncoin();
 }
 
@@ -464,7 +464,7 @@ Bomb::Bomb()
     }
     bombSounds = new Sound(takeBomb);
     bombSounds->setBuffer(takeBomb);
-    bombFallspeed = 200.f;
+    bombFallspeed = 250.f;
     bombAcceleration = 1.f;
     frameDuration = 0.4f;
     frameTimer = 0.f;
@@ -513,7 +513,7 @@ void Bomb::renderbomb(RenderWindow* l)
 
 Powerups::Powerups()
 {
-    powerupFallspeed = 200.f;
+    powerupFallspeed = 250.f;
     if (!PowerTexture.loadFromFile("Sprites/powerups/powerups.png")) //checks if it load properly
     {
         cout << "ERROR LOADING SPRITE" << endl;

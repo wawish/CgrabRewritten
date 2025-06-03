@@ -136,9 +136,9 @@ class gameEngine
 {
 public:
 	gameEngine();
-	static const int MAX_COINS = 15;
-	static const int MAX_BOMBS = 25;
-	static const int MAX_POWERUPS = 3;
+	static const int MAX_COINS = 5;
+	static const int MAX_BOMBS = 5;
+	static const int MAX_POWERUPS = 2;
 
 	gameWindow window;
 	Player player;
