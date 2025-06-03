@@ -277,16 +277,26 @@ Player::Player(RenderWindow* l)
     scoremultiplier = 1;
     score = 0;
     health = 5;
-    if (!textureplayer.loadFromFile("Sprites/player/playerwalk.png")) //checks if it load properly
+    if (!textureplayer.loadFromFile("Sprites/player/player.png")) //checks if it load properly
     {
         cout << "ERROR LOADING SPRITE" << endl;
     }
     spriteplayer = new Sprite(textureplayer); //init for player sprite
-    spriteplayer->setTextureRect(IntRect({ 0, 0 }, { 24, 32 })); //sets the sprite as a rectangle
-    spriteplayer->setScale({ 3.0f, 3.0f }); //triples the size
+    spriteplayer->setTextureRect(IntRect({ 0, 0 }, { 64, 64 })); //sets the sprite as a rectangle
+	spriteplayer->setOrigin({ 32.f, 0.f }); //sets the origin to the center of the sprite
+    spriteplayer->setScale({ 2.5f, 2.5f }); //triples the size
     moveSpeed = 700.f; //init for player ms
+    frameDuration = 0.025f;
+    frameTimer = 0.f;
+    frameWidth = 64;
+    frameHeight = 64;
+    totalFrames = 4;
+    currentFrame = 0;
+    
     playerX = WINDOW_WIDTH / 2; //init for startpos
     spriteplayer->setPosition({ playerX, PLAY_OFFSET_Y + PLAY_HEIGHT - spriteplayer->getGlobalBounds().size.y });
+    
+
 
 }
 
@@ -310,7 +320,6 @@ void Player::checkEvent(RenderWindow* l, float x)
     if (Keyboard::isKeyPressed(Keyboard::Key::D))
     {
         moveRight(x);
-
     }
     if (Keyboard::isKeyPressed(Keyboard::Key::A))
     {
@@ -320,10 +329,11 @@ void Player::checkEvent(RenderWindow* l, float x)
 
 void Player::moveRight(float x)
 {
+    spriteplayer->setScale({ -2.5f, 2.5f });
     playerX += moveSpeed * x;
     float spriteWidth = spriteplayer->getGlobalBounds().size.x;
     float minX = PLAY_OFFSET_X;
-    float maxX = PLAY_OFFSET_X + PLAY_WIDTH - spriteWidth;
+    float maxX = PLAY_OFFSET_X + PLAY_WIDTH - (spriteWidth/2) ;
     if (playerX > maxX) {
         playerX = maxX;
     }
@@ -332,9 +342,11 @@ void Player::moveRight(float x)
 
 void Player::moveLeft(float x)
 {
+    spriteplayer->setScale({ 2.5f, 2.5f });
     playerX -= moveSpeed * x;
-    float minX = PLAY_OFFSET_X;
-    if (playerX < minX) {
+    float spriteWidth = spriteplayer->getGlobalBounds().size.x;
+    float minX = PLAY_OFFSET_X + (spriteWidth/2);
+    if (playerX < minX){
         playerX = minX;
     }
     spriteplayer->setPosition({ playerX, PLAY_OFFSET_Y + PLAY_HEIGHT - spriteplayer->getGlobalBounds().size.y });
