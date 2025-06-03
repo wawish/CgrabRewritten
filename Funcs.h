@@ -41,7 +41,12 @@ class Player
 private:
 	float playerX;
 	float moveSpeed;
-	
+	float frameDuration;
+	float frameTimer;
+	int frameWidth;
+	int frameHeight;
+	int totalFrames;
+	int currentFrame;
 public:
 	Player(RenderWindow*);
 	Texture textureplayer;
