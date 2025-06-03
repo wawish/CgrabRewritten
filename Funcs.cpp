@@ -340,19 +340,6 @@ void Player::moveRight(float x)
     spriteplayer->setPosition({ playerX, PLAY_OFFSET_Y + PLAY_HEIGHT - spriteplayer->getGlobalBounds().size.y });
 }
 
-//void Money::updatecoin(float deltaTime) {
-//    frameTimer += deltaTime;
-//
-//    if (frameTimer >= frameDuration) {
-//        currentFrame = (currentFrame + 1) % totalFrames;
-//        spritecoin->setTextureRect(IntRect({ currentFrame * frameWidth, 0 }, { frameWidth, frameHeight }));
-//        frameTimer = 0.f;
-//    }
-//
-//    auto Xpos = spritecoin->getPosition().x;
-//    auto Ypos = spritecoin->getPosition().y;
-//    spritecoin->setPosition({ Xpos, Ypos + fallSpeed * deltaTime });
-
 void Player::moveLeft(float x)
 {
     spriteplayer->setScale({ 2.5f, 2.5f });
