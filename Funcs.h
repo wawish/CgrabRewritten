@@ -1,3 +1,4 @@
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFMl/System.hpp>
@@ -25,7 +26,7 @@ public:
 
 class gameWindow
 {
-	
+
 public:
 	RenderWindow* window;
 	gameWindow();
@@ -54,6 +55,7 @@ public:
 	void checkEvent(RenderWindow*, float);
 	void moveRight(float);
 	void moveLeft(float);
+	void updateplayer(float);
 	void renderplayer(RenderWindow*);
 	int score;
 	int scoremultiplier;
@@ -62,30 +64,37 @@ public:
 };
 
 class Money
-	{
-	public:
-		Money();
-		SoundBuffer takeCoin;
-		Sound* coinSounds;
-		Texture texturecoin;
-		Sprite* spritecoin;
-		float randomValX;
-		float coinFallspeed;
-		float fallSpeed;
-		void respawncoin();
-		void updatecoin(float);
-		void rendercoin(RenderWindow*);
-	private:
-		float frameDuration;
-		float frameTimer;
-		int frameWidth;
-		int frameHeight;
-		int totalFrames;
-		int currentFrame;
+{
+private:
+	float frameDuration;
+	float frameTimer;
+	int frameWidth;
+	int frameHeight;
+	int totalFrames;
+	int currentFrame;
+public:
+	Money();
+	SoundBuffer takeCoin;
+	Sound* coinSounds;
+	Texture texturecoin;
+	Sprite* spritecoin;
+	float randomValX;
+	float coinFallspeed;
+	float fallSpeed;
+	void respawncoin();
+	void updatecoin(float);
+	void rendercoin(RenderWindow*);
 };
 
 class Bomb
 {
+private:
+	float frameDuration;
+	float frameTimer;
+	int frameWidth;
+	int frameHeight;
+	int totalFrames;
+	int currentFrame;
 public:
 	Bomb();
 	SoundBuffer takeBomb;
@@ -99,18 +108,18 @@ public:
 	void respawnbomb(float);
 	void updatebomb(float);
 	void renderbomb(RenderWindow*);
+};
+
+class Powerups
+{
 private:
-	float frameDuration;
+	vector<float> frameDurations;
+	//float frameDuration;
 	float frameTimer;
 	int frameWidth;
 	int frameHeight;
 	int totalFrames;
 	int currentFrame;
-
-};
-
-class Powerups
-{
 public:
 	Powerups();
 	float randomValue;
@@ -121,7 +130,6 @@ public:
 	void respawnPowerup();
 	void updatePowerup(float);
 	void renderPowerup(RenderWindow*);
-
 };
 
 class gameEngine

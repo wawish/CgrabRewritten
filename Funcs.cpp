@@ -313,7 +313,7 @@ Player::Player(RenderWindow* l)
 	spriteplayer->setOrigin({ 32.f, 0.f }); //sets the origin to the center of the sprite
     spriteplayer->setScale({ 2.5f, 2.5f }); //triples the size
     moveSpeed = 700.f; //init for player ms
-    frameDuration = 0.025f;
+    frameDuration = 0.15f;
     frameTimer = 0.f;
     frameWidth = 64;
     frameHeight = 64;
@@ -344,11 +344,11 @@ void Player::checkEvent(RenderWindow* l, float x)
         }
     }
 
-    if (Keyboard::isKeyPressed(Keyboard::Key::D))
+    if (Keyboard::isKeyPressed(Keyboard::Key::D) || Keyboard::isKeyPressed(Keyboard::Key::Right))
     {
         moveRight(x);
     }
-    if (Keyboard::isKeyPressed(Keyboard::Key::A))
+    if (Keyboard::isKeyPressed(Keyboard::Key::A) || Keyboard::isKeyPressed(Keyboard::Key::Left))
     {
         moveLeft(x);
     }
@@ -364,6 +364,9 @@ void Player::moveRight(float x)
     if (playerX > maxX) {
         playerX = maxX;
     }
+
+    updateplayer(x);
+
     spriteplayer->setPosition({ playerX, PLAY_OFFSET_Y + PLAY_HEIGHT - spriteplayer->getGlobalBounds().size.y });
 }
 
@@ -371,12 +374,25 @@ void Player::moveLeft(float x)
 {
     spriteplayer->setScale({ 2.5f, 2.5f });
     playerX -= moveSpeed * x;
+
     float spriteWidth = spriteplayer->getGlobalBounds().size.x;
     float minX = PLAY_OFFSET_X + (spriteWidth/2);
     if (playerX < minX){
         playerX = minX;
     }
+
+    updateplayer(x);
+
     spriteplayer->setPosition({ playerX, PLAY_OFFSET_Y + PLAY_HEIGHT - spriteplayer->getGlobalBounds().size.y });
+}
+
+void Player::updateplayer(float deltaTime) {
+	frameTimer += deltaTime;
+	if (frameTimer >= frameDuration) {
+		currentFrame = (currentFrame + 1) % totalFrames;
+		spriteplayer->setTextureRect(IntRect({ currentFrame * frameWidth, 0 }, { frameWidth, frameHeight }));
+		frameTimer = 0.f;
+	}
 }
 
 float getRandomNumber() {
@@ -395,24 +411,24 @@ Money::Money()
     coinSounds = new Sound(takeCoin);
     coinSounds->setBuffer(takeCoin);
     coinFallspeed = 250.f;
-    frameDuration = 0.025f;
+    frameDuration = 0.15f;
     frameTimer = 0.f;
-    frameWidth = 64;
-    frameHeight = 64;
-    totalFrames = 25;
+    frameWidth = 32;
+    frameHeight = 32;
+    totalFrames = 8;
     currentFrame = 0;
     if (!texturecoin.loadFromFile("Sprites/money/coin.png"))
     {
         cout << "ERROR LOADING SPRITE" << endl;
     }
     spritecoin = new Sprite(texturecoin);
-    spritecoin->setTextureRect(IntRect({ 0, 0 }, { 64, 64 }));
-    spritecoin->setScale({ .5f, .5f });
+    spritecoin->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
+    spritecoin->setScale({ 2.5f, 2.5f });
     respawncoin();
 }
 
 void Money::respawncoin() {
-    randomValX = PLAY_OFFSET_X + (PLAY_WIDTH - 32) * getRandomNumber();
+    randomValX = PLAY_OFFSET_X + (PLAY_WIDTH - 80) * getRandomNumber();
     float y = PLAY_OFFSET_Y;
     spritecoin->setPosition({ randomValX, y });
     fallSpeed = coinFallspeed + getRandomNumber() * 100.f;
@@ -450,24 +466,24 @@ Bomb::Bomb()
     bombSounds->setBuffer(takeBomb);
     bombFallspeed = 200.f;
     bombAcceleration = 1.f;
-    frameDuration = 0.1f;
+    frameDuration = 0.4f;
     frameTimer = 0.f;
-    frameWidth = 20;
-    frameHeight = 26;
-    totalFrames = 6;
+    frameWidth = 32;
+    frameHeight = 32;
+    totalFrames = 2;
     currentFrame = 0;
     if (!texturebomb.loadFromFile("Sprites/bomb/bomb.png"))
     {
         cout << "ERROR LOADING SPRITE" << endl;
     }
     spritebomb = new Sprite(texturebomb);
-    spritebomb->setTextureRect(IntRect({ 0, 0 }, { 20, 26 }));
-    spritebomb->setScale({ 1.6f, 1.2307f });
+    spritebomb->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
+    spritebomb->setScale({ 2.f, 2.f });
     respawnbomb(0);
 }
 
 void Bomb::respawnbomb(float y) {
-    randomValX = PLAY_OFFSET_X + (PLAY_WIDTH - 32) * getRandomNumber();
+    randomValX = PLAY_OFFSET_X + (PLAY_WIDTH - 64) * getRandomNumber();
     spritebomb->setPosition({ randomValX, PLAY_OFFSET_Y + y });
     fallSpeed = bombFallspeed + getRandomNumber() * 100.f * bombAcceleration;
 }
@@ -502,16 +518,24 @@ Powerups::Powerups()
     {
         cout << "ERROR LOADING SPRITE" << endl;
     }
+
+    frameDurations = { 1.f, 0.1f, 0.2f, 0.1f };
+    frameTimer = 0.f;
+    frameWidth = 32;
+    frameHeight = 32;
+    totalFrames = 4;
+    currentFrame = 0;
+
     randomPowerSprite = new Sprite(PowerTexture);
-    randomPowerSprite->setTextureRect(IntRect({ 1009, 1 }, { 47, 47 }));
-    randomPowerSprite->setScale({ 1.f, 1.f });
+    randomPowerSprite->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
+    randomPowerSprite->setScale({ 2.f, 2.f });
     respawnPowerup();
 
 }
 
 void Powerups::respawnPowerup()
 {
-    randomValue = PLAY_OFFSET_X + (PLAY_WIDTH - 32) * getRandomNumber();
+    randomValue = PLAY_OFFSET_X + (PLAY_WIDTH - 64) * getRandomNumber();
     float y = PLAY_OFFSET_Y;
     randomPowerSprite->setPosition({ randomValue, y });
     fallSpeed = powerupFallspeed + getRandomNumber() * 100.f;
@@ -522,6 +546,14 @@ void Powerups::updatePowerup(float y)
     auto Xpos = randomPowerSprite->getPosition().x;
     auto Ypos = randomPowerSprite->getPosition().y;
     randomPowerSprite->setPosition({ Xpos, Ypos + fallSpeed * y });
+
+    frameTimer += y;
+
+	if (frameTimer >= frameDurations[currentFrame]) {
+		currentFrame = (currentFrame + 1) % totalFrames;
+		randomPowerSprite->setTextureRect(IntRect({ currentFrame * frameWidth, 0 }, { frameWidth, frameHeight }));
+		frameTimer = 0.f;
+	}
 
     if (randomPowerSprite->getPosition().y > PLAY_OFFSET_Y + PLAY_HEIGHT - randomPowerSprite->getGlobalBounds().size.y && rand() % 8 + 1 >= 4) {
         respawnPowerup();
