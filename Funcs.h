@@ -144,6 +144,9 @@ public:
 	int lastcoinThreshold;
 	int lastbombThreshold;
 	int lastpowerThreshold;
+	bool bombsSlowed;
+	float slowBombTimer;
+	float bombSlowFactor;
 
 	
 	void run();
@@ -153,6 +156,7 @@ public:
 	void spawnpowerups(float);
 	void collisionchecker();
 	void thresholdchecker();
+	void bombSlowchecker(float);
 	void clamp();
 };
 
