@@ -71,7 +71,6 @@ void gameEngine::collisionchecker()
             if (rand() % 10 + 1 == 1 && activeBombs < MAX_BOMBS)activeBombs += 1;
             coin[i].coinSounds->play();
             cout << "hit! " << player.score << endl;
-            status = "hit! " + to_string(player.score);
             coin[i].respawncoin();
         }
     }
@@ -80,7 +79,6 @@ void gameEngine::collisionchecker()
             player.health -= 1;
             bomb[i].bombSounds->play();
             cout << "explode! " << player.health << endl;
-            status = "explode! " + to_string(player.health);
             bomb[i].respawnbomb(0);
         }
     }
@@ -96,18 +94,22 @@ void gameEngine::collisionchecker()
                 status = "1 Health Added!";
                 player.health += 1;
                 break;
-            case 6:case 7:case 8:case 9: case 10:
+            case 6:
                 cout << "Bombs are slowed!" << endl;
                 status = "Bombs are slowed!";
                 if (!bombsSlowed) {
                     bombsSlowed = true;
-                    slowBombTimer = 5.f; // 5 seconds
+                    slowBombTimer = 2.f; // 2 seconds
                     for (int j = 0; j < activeBombs; ++j) {
                         bomb[j].bombAcceleration = bombSlowFactor;
                     }
                 } else {
-                    slowBombTimer = 5.f; // Reset timer if already slowed
+                    slowBombTimer = 2.f; // Reset timer if already slowed
                 }
+                break;
+            case 7: case 8: case 9: case 10:
+                status = "Increasing Speed...";
+                player.moveSpeed += 25.f;
                 break;
             case 11:
                 cout << player.scoremultiplier + 1 << " Multiplier! " << endl;
@@ -115,9 +117,15 @@ void gameEngine::collisionchecker()
                 player.scoremultiplier += 1;
                 break;
             case 12:
-                cout << "Clearing Bombs..." << endl;
-                status = "Clearing Bombs...";
-                activeBombs = 0;
+                cout << "bombs are easier to dodge..." << endl;
+                status = "bombs are easier to dodge...";
+                for (int i = 0; i < activeBombs; i++)
+                {
+                    float newScaleX = bomb[i].spritebomb->getScale().x;
+                    float newScaleY = bomb[i].spritebomb->getScale().y;
+
+                    bomb[i].spritebomb->setScale({ newScaleX * .98f, newScaleY * .98f });
+                }
                 break;
             case 13:case 14: case 15: case 16: case 17:
                 cout << "Unlucky! Added 1 Bomb" << endl;
@@ -129,7 +137,6 @@ void gameEngine::collisionchecker()
                 status = "Nothing! (Be happy)";
                 break;
             }
-
             power[i].respawnPowerup();
         }
     }
@@ -144,7 +151,7 @@ void gameEngine::thresholdchecker()
         cout << "THRESHOLD REACHED! Amount of Coins: " << activeCoins << " Score: " << player.score << endl;
         if(activeCoins < MAX_COINS) activeCoins++;
         for (int i = 0; i < activeCoins; ++i) {
-            coin[i].coinFallspeed += 25.f;
+            coin[i].coinFallspeed += 10.f;
         }
         lastcoinThreshold = cointhreshold;
     }
@@ -156,7 +163,7 @@ void gameEngine::thresholdchecker()
         cout << "THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
         if (activeBombs < MAX_BOMBS) activeBombs++;
         for (int i = 0; i < activeBombs; ++i) {
-            bomb[i].bombFallspeed += 25.f;
+            bomb[i].bombFallspeed += 10.f;
             // Only respawn new bombs
             if (i >= oldActiveBombs) {
                 bomb[i].respawnbomb(0);
@@ -170,7 +177,7 @@ void gameEngine::thresholdchecker()
         cout << "THRESHOLD REACHED! Amount of Powerups: " << activePowerups << endl;
         if (activePowerups < MAX_POWERUPS) activePowerups++;
         for (int i = 0; i < activePowerups; ++i) {
-            power[i].powerupFallspeed += 25.f;
+            power[i].powerupFallspeed += 10.f;
         }
         lastpowerThreshold = powerthreshold;
     }
@@ -410,6 +417,7 @@ Money::Money()
     }
     coinSounds = new Sound(takeCoin);
     coinSounds->setBuffer(takeCoin);
+    coinSounds->setVolume(50);
     coinFallspeed = 250.f;
     frameDuration = 0.15f;
     frameTimer = 0.f;
@@ -464,6 +472,7 @@ Bomb::Bomb()
     }
     bombSounds = new Sound(takeBomb);
     bombSounds->setBuffer(takeBomb);
+    bombSounds->setVolume(50);
     bombFallspeed = 250.f;
     bombAcceleration = 1.f;
     frameDuration = 0.4f;

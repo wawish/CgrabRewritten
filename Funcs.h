@@ -41,7 +41,6 @@ class Player
 {
 private:
 	float playerX;
-	float moveSpeed;
 	float frameDuration;
 	float frameTimer;
 	int frameWidth;
@@ -49,6 +48,7 @@ private:
 	int totalFrames;
 	int currentFrame;
 public:
+	float moveSpeed;
 	Player(RenderWindow*);
 	Texture textureplayer;
 	Sprite* spriteplayer;
@@ -137,7 +137,7 @@ class gameEngine
 public:
 	gameEngine();
 	static const int MAX_COINS = 5;
-	static const int MAX_BOMBS = 5;
+	static const int MAX_BOMBS = 3;
 	static const int MAX_POWERUPS = 2;
 
 	gameWindow window;
