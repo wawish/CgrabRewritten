@@ -1,9 +1,11 @@
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFMl/System.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
+#include <random>
 
 #define PLAY_WIDTH 1280
 #define PLAY_HEIGHT 720
