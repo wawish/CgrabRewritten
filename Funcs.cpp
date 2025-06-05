@@ -350,7 +350,7 @@ Player::~Player() //deconstructor
 }
  
 Player::Player(RenderWindow* l)
-{  
+{
     scoremultiplier = 1;
     score = 0;
     health = 5;
@@ -364,6 +364,8 @@ Player::Player(RenderWindow* l)
     }
     spriteheart = new Sprite(textureheart);
     spriteheart->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
+    spriteheart->setScale({ 2.5f, 2.5f });
+
     spriteplayer = new Sprite(textureplayer); //init for player sprite
     spriteplayer->setTextureRect(IntRect({ 0, 0 }, { 64, 64 })); //sets the sprite as a rectangle
 	spriteplayer->setOrigin({ 32.f, 0.f }); //sets the origin to the center of the sprite
@@ -387,21 +389,19 @@ void Player::renderplayer(RenderWindow* l) //draws the player
 {
     for (int i = 0; i < MAX_HEALTH; i++)
     {
+        spriteheart->setPosition({ 1760, 330 + (32.f * i * 3.f) });  // adjust spacing as needed
+
         if (health > i)
         {
             spriteheart->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
-            spriteheart->setPosition({0 + (32.f * i), 0 }); // adjust spacing as needed
-            l->draw(*spriteheart);
         }
         else
         {
             spriteheart->setTextureRect(IntRect({ 32, 0 }, { 32, 32 }));
-            spriteheart->setPosition({ 0 + (32.f * i), 0 }); // adjust spacing as needed
-            l->draw(*spriteheart);
         }
+        l->draw(*spriteheart);
     }
     l->draw(*spriteplayer); 
-
 }
 
 void Player::checkEvent(RenderWindow* l, float x)
