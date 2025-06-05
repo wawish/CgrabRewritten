@@ -265,7 +265,7 @@ void gameEngine::reset()
     player.scoremultiplier = 1;
     player.health = 5;
     player.moveSpeed = 700.f;
-    // Reset coins, bombs, powerups
+    player.spriteplayer->setPosition({ WINDOW_WIDTH / 2, PLAY_OFFSET_Y + PLAY_HEIGHT - player.spriteplayer->getGlobalBounds().size.y });
     activeCoins = 1;
     activeBombs = 0;
     activePowerups = 0;
@@ -641,18 +641,55 @@ void Powerups::renderPowerup(RenderWindow* l)
 
 gameOver::gameOver()
 {
+    if (!textureRetryButton.loadFromFile("Sprites/buttons/playbutton.png")) //checks if it load properly
+    {
+        cout << "ERROR LOADING SPRITE" << endl;
+    }
+    if (!textureQuitButton.loadFromFile("Sprites/buttons/exitbutton.png")) //checks if it load properly
+    {
+        cout << "ERROR LOADING SPRITE" << endl;
+    }
+    if (!textureOverTray.loadFromFile("Sprites/buttons/tray.png")) //checks if it load properly
+    {
+        cout << "ERROR LOADING SPRITE" << endl;
+    }
     if (!gameoverFont.openFromFile("Sprites/Fonts/ka1.ttf"))
     {
         cout << "ERROR LOADING FONT" << endl;
     }
-    // Center the tray in the window
+    
+
     float trayWidth = 750.f;
     float trayHeight = 450.f;
     float trayX = (1920.f - trayWidth) / 2.f;
     float trayY = (1080.f - trayHeight) / 2.f;
-    gameoverTray.setFillColor(Color::Black);
-    gameoverTray.setSize({ trayWidth, trayHeight });
-    gameoverTray.setPosition({ trayX, trayY });
+    spriteOverTray = new Sprite(textureOverTray);
+    spriteOverTray->setPosition({ trayX, trayY });
+    
+    spriteRetryButton = new Sprite(textureRetryButton);
+    spriteQuitButton = new Sprite(textureQuitButton);
+
+    float buttonScale = 0.75f;
+
+    float retryWidth = spriteRetryButton->getLocalBounds().size.x * buttonScale;
+    float retryHeight = spriteRetryButton->getLocalBounds().size.y * buttonScale;
+    float quitWidth = spriteQuitButton->getLocalBounds().size.x * buttonScale;
+    float quitHeight = spriteQuitButton->getLocalBounds().size.y * buttonScale;
+
+    float sideMargin = 100.f;
+    float bottomMargin = 80.f;
+
+    spriteRetryButton->setPosition({trayX + sideMargin, trayY + trayHeight - retryHeight - bottomMargin});
+
+    // Position Quit (right)
+    spriteQuitButton->setPosition({ trayX + trayWidth - quitWidth - sideMargin, trayY + trayHeight - quitHeight - bottomMargin });
+
+    //spriteRetryButton->setPosition({ trayX + 40.f, trayY + trayHeight - 40.f });
+    //spriteQuitButton->setPosition({ trayX + trayWidth - 40.f, trayY + trayHeight - 40.f });
+    spriteRetryButton->setScale({ buttonScale, buttonScale });
+    spriteQuitButton->setScale({ buttonScale, buttonScale });
+
+    
 
     lostHeader = new Text(gameoverFont);
     lostHeader->setCharacterSize(102);
@@ -667,26 +704,32 @@ gameOver::gameOver()
 
 void gameOver::draw(RenderWindow* l)
 {   
-    l->draw(gameoverTray);
+    l->draw(*spriteOverTray);
     l->draw(*lostHeader);
+    l->draw(*spriteQuitButton);
+    l->draw(*spriteRetryButton);
 }
 
 void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
 {
-    while (auto event = l->pollEvent()) //checks for event
+    while (auto event = l->pollEvent())
     {
-
-        if (event->is<Event::Closed>()) //when x is clicked
+        if (event->is<Event::Closed>())
         {
             l->close();
         }
-        if (Keyboard::isKeyPressed(Keyboard::Key::Insert))
+        if (event->is<Event::MouseButtonPressed>())
         {
-            engine->reset();
+            auto mouseClick = Vector2f(Mouse::getPosition(*l));
+            if (spriteRetryButton->getGlobalBounds().contains(mouseClick))
+            {
+                engine->reset();
+            }
+            if (spriteQuitButton->getGlobalBounds().contains(mouseClick))
+            {
+                l->close();
+            }
         }
     }
-
-    //check position is clicked of button retry
-    //check position is clicked of button menu
 }
 

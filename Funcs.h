@@ -21,13 +21,12 @@ class gameOver
 {
 public:
 	gameOver();
-	RectangleShape gameoverTray;//640 x 480
+	Texture textureOverTray, textureQuitButton, textureRetryButton;
+	Sprite* spriteOverTray, *spriteQuitButton, *spriteRetryButton;
 	void draw(RenderWindow* l);
 	void checkEvent(RenderWindow* l, gameEngine*);
 	Font gameoverFont;
 	Text *lostHeader;
-	//RectangleShape Retry;
-	//RectangleShape Quit;
 };
 
 class gameWindow
