@@ -295,6 +295,8 @@ void gameEngine::reset()
 
     // Reset state
     state = GameState::Playing;
+	playBGM.play(); // Restart background music
+	playBGM.setLooping(true); // Music loops
 }
 
 gameWindow::gameWindow()
