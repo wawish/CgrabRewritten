@@ -24,6 +24,16 @@ gameEngine::gameEngine()
     bombsSlowed = false;
     slowBombTimer = 0.f;
     bombSlowFactor = 0.5f; // Factor to slow bombs
+
+    if (!playBGM.openFromFile("Sprites/soundfx/playBGM.wav")) {
+        std::cout << "ERROR LOADING BACKGROUND MUSIC" << std::endl;
+    }
+    else {
+        //bgmMusic.setLoop(true);
+        playBGM.setLooping(true);
+        playBGM.setVolume(40); // Volume control
+        playBGM.play();
+    }
 }
 
 void gameEngine::clamp()

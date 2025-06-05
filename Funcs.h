@@ -164,6 +164,7 @@ public:
 	bool bombsSlowed;
 	float slowBombTimer;
 	float bombSlowFactor;
+	Music playBGM;
 
 	
 	void run();
