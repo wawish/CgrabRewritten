@@ -66,7 +66,7 @@ public:
 	int score;
 	int scoremultiplier;
 	int health;
-	static const int MAX_HEALTH = 10;
+	static const int MAX_HEALTH = 5;
 	~Player();
 };
 
