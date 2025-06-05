@@ -12,7 +12,7 @@ void randomNumber()
 }
 
 gameEngine::gameEngine()
-    : window(), player(window.window)
+    : window(), player(window.window), state(GameState::Playing)
 {
     activeCoins = 1; //coins currently onscreen
     activeBombs = 0; //bombs currently onscreen
@@ -218,28 +218,34 @@ void gameEngine::updatetext()
 void gameEngine::run()
 {
     clamp();
-    sf::Clock clock;
+    Clock clock;
     while (window.window->isOpen()) {
-        if (player.health <= 0) //this is temporary
-        {
-            window.window->close();
-        }
-        float delta = clock.restart().asSeconds(); //delta time var
-        window.window->clear(); //clears the window
+        float delta = clock.restart().asSeconds();
+        window.window->clear();
         window.window->draw(*window.spritebg);
-        updatetext();
-        player.checkEvent(window.window, delta); //keystroke checker
-        player.renderplayer(window.window); //draws the player
-        spawncoins(delta);
-        spawnbombs(delta);
-        spawnpowerups(delta);
-        collisionchecker();
-        thresholdchecker();
-        bombSlowchecker(delta);
-        
-        
 
-        window.window->display(); //draws the screen
+        if (state == GameState::Playing) {
+            updatetext();
+            player.checkEvent(window.window, delta);
+            player.renderplayer(window.window);
+            spawncoins(delta);
+            spawnbombs(delta);
+            spawnpowerups(delta);
+            collisionchecker();
+            thresholdchecker();
+            bombSlowchecker(delta);
+
+            if (player.health <= 0 || Keyboard::isKeyPressed(Keyboard::Key::Backspace)) {
+
+                state = GameState::GameOver;
+            }
+
+        } else if (state == GameState::GameOver) {
+            gameover.draw(window.window);
+            gameover.checkEvent(window.window, this);
+        }
+
+        window.window->display();
     }
 }
 
@@ -573,4 +579,83 @@ void Powerups::updatePowerup(float y)
 void Powerups::renderPowerup(RenderWindow* l)
 {
     l->draw(*randomPowerSprite);
+}
+
+gameOver::gameOver()
+{
+    if (!gameoverFont.openFromFile("Sprites/Fonts/ka1.ttf"))
+    {
+        cout << "ERROR LOADING FONT" << endl;
+    }
+    // Center the tray in the window
+    float trayWidth = 750.f;
+    float trayHeight = 450.f;
+    float trayX = (1920.f - trayWidth) / 2.f;
+    float trayY = (1080.f - trayHeight) / 2.f;
+    gameoverTray.setFillColor(Color::Black);
+    gameoverTray.setSize({ trayWidth, trayHeight });
+    gameoverTray.setPosition({ trayX, trayY });
+
+    lostHeader = new Text(gameoverFont);
+    lostHeader->setCharacterSize(102);
+    lostHeader->setFillColor(Color::White);
+    lostHeader->setString("GAME OVER!");
+
+    // Place the header near the top center of the tray, no origin math
+    float headerX = trayX + 93.f; // 500 is a rough width for the text block
+    float headerY = trayY + 75.f; // 50px from the top of the tray
+    lostHeader->setPosition({ headerX, headerY });
+}
+
+void gameOver::draw(RenderWindow* l)
+{   
+    l->draw(gameoverTray);
+    l->draw(*lostHeader);
+}
+
+void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
+{
+    while (auto event = l->pollEvent()) //checks for event
+    {
+
+        if (event->is<Event::Closed>()) //when x is clicked
+        {
+            l->close();
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Key::Insert))
+        {
+            engine->reset();
+        }
+    }
+
+    //check position is clicked of button retry
+    //check position is clicked of button menu
+}
+
+void gameEngine::reset()
+{
+    // Reset player
+    player.score = 0;
+    player.scoremultiplier = 1;
+    player.health = 5;
+    player.moveSpeed = 700.f;
+    // Reset coins, bombs, powerups
+    activeCoins = 1;
+    activeBombs = 0;
+    activePowerups = 0;
+    lastcoinThreshold = 0;
+    lastbombThreshold = 0;
+    lastpowerThreshold = 0;
+    bombsSlowed = false;
+    slowBombTimer = 0.f;
+    bombSlowFactor = 0.5f;
+    status = "";
+
+    // Respawn all objects
+    for (int i = 0; i < MAX_COINS; ++i) coin[i].respawncoin();
+    for (int i = 0; i < MAX_BOMBS; ++i) bomb[i].respawnbomb(0);
+    for (int i = 0; i < MAX_POWERUPS; ++i) power[i].respawnPowerup();
+
+    // Reset state
+    state = GameState::Playing;
 }

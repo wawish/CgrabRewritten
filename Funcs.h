@@ -15,13 +15,19 @@
 using namespace sf;
 using namespace std;
 
-class gameMenu
+class gameEngine;
+
+class gameOver
 {
 public:
-	/*Font mainfont;*/
-	Sprite* spritebuttonPlay, spritebuttonQuit, spritebuttonSettings, spriteLogo;
-	Sound onClick, onHover;
-	Music* bgmMusic;
+	gameOver();
+	RectangleShape gameoverTray;//640 x 480
+	void draw(RenderWindow* l);
+	void checkEvent(RenderWindow* l, gameEngine*);
+	Font gameoverFont;
+	Text *lostHeader;
+	//RectangleShape Retry;
+	//RectangleShape Quit;
 };
 
 class gameWindow
@@ -135,11 +141,14 @@ public:
 class gameEngine
 {
 public:
+	enum class GameState { Playing, GameOver };
+	GameState state = GameState::Playing;
 	gameEngine();
 	static const int MAX_COINS = 5;
 	static const int MAX_BOMBS = 3;
 	static const int MAX_POWERUPS = 2;
 
+	gameOver gameover;
 	gameWindow window;
 	Player player;
 	Money coin[MAX_COINS];
@@ -166,6 +175,7 @@ public:
 	void thresholdchecker();
 	void bombSlowchecker(float);
 	void clamp();
+	void reset();
 };
 
 
