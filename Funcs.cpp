@@ -257,6 +257,7 @@ void gameEngine::run()
             if (player.health <= 0 || Keyboard::isKeyPressed(Keyboard::Key::Backspace)) {
 
                 state = GameState::GameOver;
+				playBGM.stop(); // Stop background music on game over
             }
 
         } else if (state == GameState::GameOver) {
