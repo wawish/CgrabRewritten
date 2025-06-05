@@ -90,9 +90,17 @@ void gameEngine::collisionchecker()
             switch (chosen)
             {
             case 1:case 2:case 3:case 4: case 5:
-                cout << "1 Health Added!" << endl;
-                status = "1 Health Added!";
-                player.health += 1;
+                if (player.health < player.MAX_HEALTH)
+                {
+                    cout << "1 Health Added!" << endl;
+                    status = "1 Health Added!";
+                    player.health += 1;
+                }
+                else
+                {
+                    cout << "Max Health Reached!" << endl;
+                    status = "Max Health Reached!";
+                }
                 break;
             case 6:
                 cout << "Bombs are slowed!" << endl;
@@ -151,7 +159,7 @@ void gameEngine::thresholdchecker()
         cout << "THRESHOLD REACHED! Amount of Coins: " << activeCoins << " Score: " << player.score << endl;
         if(activeCoins < MAX_COINS) activeCoins++;
         for (int i = 0; i < activeCoins; ++i) {
-            coin[i].coinFallspeed += 10.f;
+            coin[i].coinFallspeed += 25.f;
         }
         lastcoinThreshold = cointhreshold;
     }
@@ -163,7 +171,7 @@ void gameEngine::thresholdchecker()
         cout << "THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
         if (activeBombs < MAX_BOMBS) activeBombs++;
         for (int i = 0; i < activeBombs; ++i) {
-            bomb[i].bombFallspeed += 10.f;
+            bomb[i].bombFallspeed += 25.f;
             // Only respawn new bombs
             if (i >= oldActiveBombs) {
                 bomb[i].respawnbomb(0);
@@ -177,7 +185,7 @@ void gameEngine::thresholdchecker()
         cout << "THRESHOLD REACHED! Amount of Powerups: " << activePowerups << endl;
         if (activePowerups < MAX_POWERUPS) activePowerups++;
         for (int i = 0; i < activePowerups; ++i) {
-            power[i].powerupFallspeed += 10.f;
+            power[i].powerupFallspeed += 25.f;
         }
         lastpowerThreshold = powerthreshold;
     }
@@ -223,6 +231,7 @@ void gameEngine::run()
         float delta = clock.restart().asSeconds();
         window.window->clear();
         window.window->draw(*window.spritebg);
+        //draw hearts
 
         if (state == GameState::Playing) {
             updatetext();
@@ -247,6 +256,34 @@ void gameEngine::run()
 
         window.window->display();
     }
+}
+
+void gameEngine::reset()
+{
+    // Reset player
+    player.score = 0;
+    player.scoremultiplier = 1;
+    player.health = 5;
+    player.moveSpeed = 700.f;
+    // Reset coins, bombs, powerups
+    activeCoins = 1;
+    activeBombs = 0;
+    activePowerups = 0;
+    lastcoinThreshold = 0;
+    lastbombThreshold = 0;
+    lastpowerThreshold = 0;
+    bombsSlowed = false;
+    slowBombTimer = 0.f;
+    bombSlowFactor = 0.5f;
+    status = "";
+
+    // Respawn all objects
+    for (int i = 0; i < MAX_COINS; ++i) coin[i].respawncoin();
+    for (int i = 0; i < MAX_BOMBS; ++i) bomb[i].respawnbomb(0);
+    for (int i = 0; i < MAX_POWERUPS; ++i) power[i].respawnPowerup();
+
+    // Reset state
+    state = GameState::Playing;
 }
 
 gameWindow::gameWindow()
@@ -321,6 +358,12 @@ Player::Player(RenderWindow* l)
     {
         cout << "ERROR LOADING SPRITE" << endl;
     }
+    if (!textureheart.loadFromFile("Sprites/hearts/hearts.png")) //checks if it load properly
+    {
+        cout << "ERROR LOADING SPRITE" << endl;
+    }
+    spriteheart = new Sprite(textureheart);
+    spriteheart->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
     spriteplayer = new Sprite(textureplayer); //init for player sprite
     spriteplayer->setTextureRect(IntRect({ 0, 0 }, { 64, 64 })); //sets the sprite as a rectangle
 	spriteplayer->setOrigin({ 32.f, 0.f }); //sets the origin to the center of the sprite
@@ -342,6 +385,21 @@ Player::Player(RenderWindow* l)
 
 void Player::renderplayer(RenderWindow* l) //draws the player
 {
+    for (int i = 0; i < MAX_HEALTH; i++)
+    {
+        if (health > i)
+        {
+            spriteheart->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
+            spriteheart->setPosition({0 + (32.f * i), 0 }); // adjust spacing as needed
+            l->draw(*spriteheart);
+        }
+        else
+        {
+            spriteheart->setTextureRect(IntRect({ 32, 0 }, { 32, 32 }));
+            spriteheart->setPosition({ 0 + (32.f * i), 0 }); // adjust spacing as needed
+            l->draw(*spriteheart);
+        }
+    }
     l->draw(*spriteplayer); 
 
 }
@@ -601,9 +659,9 @@ gameOver::gameOver()
     lostHeader->setFillColor(Color::White);
     lostHeader->setString("GAME OVER!");
 
-    // Place the header near the top center of the tray, no origin math
-    float headerX = trayX + 93.f; // 500 is a rough width for the text block
-    float headerY = trayY + 75.f; // 50px from the top of the tray
+    
+    float headerX = trayX + 93.f;
+    float headerY = trayY + 75.f;
     lostHeader->setPosition({ headerX, headerY });
 }
 
@@ -632,30 +690,3 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
     //check position is clicked of button menu
 }
 
-void gameEngine::reset()
-{
-    // Reset player
-    player.score = 0;
-    player.scoremultiplier = 1;
-    player.health = 5;
-    player.moveSpeed = 700.f;
-    // Reset coins, bombs, powerups
-    activeCoins = 1;
-    activeBombs = 0;
-    activePowerups = 0;
-    lastcoinThreshold = 0;
-    lastbombThreshold = 0;
-    lastpowerThreshold = 0;
-    bombsSlowed = false;
-    slowBombTimer = 0.f;
-    bombSlowFactor = 0.5f;
-    status = "";
-
-    // Respawn all objects
-    for (int i = 0; i < MAX_COINS; ++i) coin[i].respawncoin();
-    for (int i = 0; i < MAX_BOMBS; ++i) bomb[i].respawnbomb(0);
-    for (int i = 0; i < MAX_POWERUPS; ++i) power[i].respawnPowerup();
-
-    // Reset state
-    state = GameState::Playing;
-}

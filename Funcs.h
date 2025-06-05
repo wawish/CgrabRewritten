@@ -56,8 +56,8 @@ private:
 public:
 	float moveSpeed;
 	Player(RenderWindow*);
-	Texture textureplayer;
-	Sprite* spriteplayer;
+	Texture textureplayer, textureheart;
+	Sprite* spriteplayer, *spriteheart;
 	void checkEvent(RenderWindow*, float);
 	void moveRight(float);
 	void moveLeft(float);
@@ -66,6 +66,7 @@ public:
 	int score;
 	int scoremultiplier;
 	int health;
+	static const int MAX_HEALTH = 10;
 	~Player();
 };
 
@@ -141,7 +142,7 @@ public:
 class gameEngine
 {
 public:
-	enum class GameState { Playing, GameOver };
+	enum class GameState { Playing, GameOver, Paused };
 	GameState state = GameState::Playing;
 	gameEngine();
 	static const int MAX_COINS = 5;
