@@ -12,7 +12,6 @@ using namespace std;
 
 int main()
 {
-
     Game startGame;
     startGame.run();
     return 0;

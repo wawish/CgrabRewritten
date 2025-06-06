@@ -12,6 +12,96 @@ void randomNumber()
     srand(static_cast<unsigned int>(time(nullptr)));
 }
 
+float getRandomNumber() {
+    static random_device rd;
+    static mt19937 gen(rd());
+    static uniform_real_distribution<> dis(0.0, 1.0);
+    return dis(gen);
+}
+
+comicSlideShow::comicSlideShow(RenderWindow* l)
+{
+    if(!frame1.loadFromFile("Sprites/comic/1.png") || !frame2.loadFromFile("Sprites/comic/2.png") || !frame3.loadFromFile("Sprites/comic/3.png"))
+    {
+        cout << "ERROR LOADING TEXTURE" << endl;
+    }
+}
+
+void comicSlideShow::draw(RenderWindow* l)
+{
+    // Prepare slideshow data
+    Texture* frames[] = { &frame1, &frame2, &frame3 };
+    const int numFrames = 3;
+    const float fadeInTime = 1.0f;
+    const float holdTime = 5.0f;
+    const float fadeOutTime = 1.0f;
+    const float totalTime = fadeInTime + holdTime + fadeOutTime;
+
+    int frameIndex = 0;
+    bool running = true;
+    Clock clock;
+
+    // Create sprite for current frame
+    if (currentframe) delete currentframe;
+    currentframe = new Sprite(*frames[frameIndex]);
+
+    while (l->isOpen() && running)
+    {
+        // Handle events (close window or skip with Space)
+        while (const std::optional<sf::Event> event = l->pollEvent())
+        {
+            if (event->is<sf::Event::Closed>())
+            {
+                l->close();
+                return;
+            }
+            if (const auto* pressedKey = event->getIf<sf::Event::KeyPressed>())
+            {
+                if (pressedKey->code == sf::Keyboard::Key::Space)
+                {
+                    running = false;
+                }
+            }
+        }
+
+        float elapsed = clock.getElapsedTime().asSeconds();
+        float alpha = 0.f;
+
+        if (elapsed < fadeInTime)
+        {
+            alpha = 255.f * (elapsed / fadeInTime);
+        }
+        else if (elapsed < fadeInTime + holdTime)
+        {
+            alpha = 255.f;
+        }
+        else if (elapsed < totalTime)
+        {
+            alpha = 255.f * (1.f - (elapsed - fadeInTime - holdTime) / fadeOutTime);
+        }
+        else
+        {
+            // Next frame or end
+            frameIndex++;
+            if (frameIndex >= numFrames)
+            {
+                running = false;
+                continue;
+            }
+            clock.restart();
+            if (currentframe) delete currentframe;
+            currentframe = new Sprite(*frames[frameIndex]);
+            continue;
+        }
+
+        currentframe->setColor(sf::Color(255, 255, 255, static_cast<uint8_t>(alpha)));
+
+        l->clear();
+        l->draw(*currentframe);
+        l->display();
+    }
+}
+
 gameEngine::gameEngine(RenderWindow* window)
     : window(window), player(window), state(GameState::Playing)
 {
@@ -30,10 +120,10 @@ gameEngine::gameEngine(RenderWindow* window)
     bombThresholdTimer = 0.f;
     bombThresholdInterval = 25.f; // Interval for bomb threshold in seconds
     powerupThresholdTimer = 0.f;
-    powerupThresholdInterval = 100.f; // Interval for powerup threshold in seconds
+    powerupThresholdInterval = 15.f; // Interval for powerup threshold in seconds
 
     if (!playBGM.openFromFile("Sprites/soundfx/playBGM.wav")) {
-        std::cout << "ERROR LOADING BACKGROUND MUSIC" << std::endl;
+        cout << "ERROR LOADING BACKGROUND MUSIC" << std::endl;
     }
     else {
         //bgmMusic.setLoop(true);
@@ -166,7 +256,13 @@ void gameEngine::collisionchecker()
                 status = "Nothing! (Be happy)"; // to be removed
                 break;
             }
-            power[i].respawnPowerup();
+            for (int i = 0; i < activePowerups; ++i)
+            {
+                
+                float randomValue = PLAY_OFFSET_X + (PLAY_WIDTH - 64) * getRandomNumber();
+                power[i].randomPowerSprite->setPosition({ randomValue, PLAY_OFFSET_Y });
+            }
+            activePowerups--;
         }
     }
 
@@ -238,18 +334,21 @@ void gameEngine::bombSlowchecker(float x)
 
 void gameEngine::updatetext()
 {
-    window.T_health->setString("Health: " + to_string(player.health));
     window.T_score->setString("Score: " + to_string(player.score));
-    window.T_bombs->setString("Bombs: " + to_string(activeBombs));
-    window.T_coins->setString("Coins: " + to_string(activeCoins));
-    window.T_multiplier->setString("Multiplier: x" + to_string(player.scoremultiplier));
-    window.T_status->setString(status);
+    sf::FloatRect scoreBounds = window.T_score->getLocalBounds();
+    window.T_score->setOrigin({ scoreBounds.size.x / 2.f, scoreBounds.size.y / 2.f });
+    window.T_score->setPosition(Vector2f(WINDOW_WIDTH / 2, 30.f));
+    window.T_score->setCharacterSize(64);
+    window.T_score->setFillColor(sf::Color::White);
 
-    window.window->draw(*window.T_health);
+    window.T_status->setString(status);
+    sf::FloatRect statusBounds = window.T_status->getLocalBounds();
+	window.T_status->setOrigin({ statusBounds.size.x / 2.f, statusBounds.size.y / 2.f });
+	window.T_status->setPosition(Vector2f(WINDOW_WIDTH / 2, 1020.f));
+	window.T_status->setCharacterSize(45);
+	window.T_status->setFillColor(sf::Color::White);
+
     window.window->draw(*window.T_score);
-    window.window->draw(*window.T_bombs);
-    window.window->draw(*window.T_coins);
-    window.window->draw(*window.T_multiplier);
     window.window->draw(*window.T_status);
 }
 
@@ -257,6 +356,7 @@ void gameEngine::run()
 {
     clamp();
     Clock clock;
+    bool goToMenu = false;
     while (window.window->isOpen()) {
         float delta = clock.restart().asSeconds();
         window.window->clear();
@@ -267,9 +367,9 @@ void gameEngine::run()
             updatetext();
             player.checkEvent(window.window, delta);
             player.renderplayer(window.window);
-            spawncoins(delta);
-            spawnbombs(delta);
-            spawnpowerups(delta);
+            if (activeCoins)spawncoins(delta);
+            if (activeBombs)spawnbombs(delta);
+            if (activePowerups)spawnpowerups(delta);
             collisionchecker();
             thresholdchecker(delta);
             bombSlowchecker(delta);
@@ -284,7 +384,8 @@ void gameEngine::run()
         } 
         else if (state == GameState::GameOver) {
             gameover.draw(window.window);
-            gameover.checkEvent(window.window, this);
+            gameover.checkEvent(window.window, this, &goToMenu);
+            if (goToMenu) break;
         }
 
         window.window->display();
@@ -500,13 +601,6 @@ void Player::updateplayer(float deltaTime) {
 		spriteplayer->setTextureRect(IntRect({ currentFrame * frameWidth, 0 }, { frameWidth, frameHeight }));
 		frameTimer = 0.f;
 	}
-}
-
-float getRandomNumber() {
-    static random_device rd;
-    static mt19937 gen(rd());
-    static uniform_real_distribution<> dis(0.0, 1.0);
-    return dis(gen);
 }
 
 Money::Money()
@@ -783,7 +877,7 @@ void gameOver::draw(RenderWindow* l)
     l->draw(*spriteRetryButton);
 }
 
-void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
+void gameOver::checkEvent(RenderWindow* l, gameEngine* engine, bool* goToMenu)
 {
     while (auto event = l->pollEvent())
     {
@@ -802,7 +896,7 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
             if (spriteQuitButton->getGlobalBounds().contains(mouseClick))
             {
 				clickSound->play(); // Play click sound
-                l->close();
+                if (goToMenu) *goToMenu = true;
             }
         }
     }

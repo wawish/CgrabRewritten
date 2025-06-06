@@ -19,6 +19,15 @@ using namespace std;
 
 class gameEngine;
 
+class comicSlideShow
+{
+public:
+	comicSlideShow(RenderWindow*);
+	Texture frame1, frame2, frame3;
+	Sprite *currentframe;
+	void draw(RenderWindow*);
+};
+
 class gameOver
 {
 public:
@@ -27,7 +36,7 @@ public:
 	Sprite* spriteOverTray, *spriteQuitButton, *spriteRetryButton;
 	void draw(RenderWindow* l);
 
-	void checkEvent(RenderWindow* l, gameEngine* engine);
+	void checkEvent(RenderWindow* l, gameEngine* engine, bool*);
 
 	Font gameoverFont;
 	Text *lostHeader;
