@@ -9,7 +9,6 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 
 	window(window),
 	menuBGM(BGM),
-
 	info(trayInfo::None),
 	currentTray(trayShow::None),
 	optionsSprite(optionsTexture),
@@ -26,7 +25,9 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 	soundtxtSprite(soundtxtTexture),
 	musictxtSprite(musictxtTexture),
 	sameBGSprite(sameBGTexture),
-	bigTraySprite(bigTrayTexture)
+	bigTraySprite(bigTrayTexture),
+	helpBGSprite(helpBGTexture),
+	creditBGSprite(creditBGTexture)
 	
 {
 
@@ -46,7 +47,9 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 		!musictxtTexture.loadFromFile("Sprites/buttons/musictxt.png") ||
 		!highlightRectTexture.loadFromFile("Sprites/buttons/highlight.png") ||
 		!sameBGTexture.loadFromFile("Sprites/bg/menubg.png") ||
-		!bigTrayTexture.loadFromFile("Sprites/buttons/bigtray.png")) {
+		!bigTrayTexture.loadFromFile("Sprites/buttons/bigtray.png") ||
+		!creditBGTexture.loadFromFile("Sprites/buttons/creditBG.png") ||
+		!helpBGTexture.loadFromFile("Sprites/buttons/nobghowtoplay.png")) {
 		cerr << "Error loading textures [OPTIONS]" << endl;
 	}
 
@@ -79,12 +82,15 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 	musicleftArrowSprite.setTexture(musicleftArrowTexture, true);
 	musicrightArrowSprite.setTexture(musicrightArrowTexture, true);
 
+
 	unhighlightRectSprite.setTexture(unhighlightRectTexture, true);
 	highlightRectSprite.setTexture(highlightRectTexture, true);
 	soundtxtSprite.setTexture(soundtxtTexture, true);
 	musictxtSprite.setTexture(musictxtTexture, true);
 	sameBGSprite.setTexture(sameBGTexture, true);
 	bigTraySprite.setTexture(bigTrayTexture, true);
+	helpBGSprite.setTexture(helpBGTexture, true);
+	creditBGSprite.setTexture(creditBGTexture, true);
 
 	soundRectangle[0] = new Sprite(unhighlightRectTexture);
 	soundRectangle[1] = new Sprite(unhighlightRectTexture);
@@ -172,6 +178,12 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 
 	bigTraySprite.setOrigin(Vector2f(bigTraySprite.getLocalBounds().size.x / 2.f, 0.f));
 	bigTraySprite.setPosition(Vector2f(windowWidth / 2.f, 140.f));
+
+	helpBGSprite.setOrigin(Vector2f(bigTraySprite.getLocalBounds().size.x / 2.f, 0.f));
+	helpBGSprite.setPosition(Vector2f(windowWidth / 2.f, 140.f));
+
+	creditBGSprite.setOrigin(Vector2f(bigTraySprite.getLocalBounds().size.x / 2.f, 0.f));
+	creditBGSprite.setPosition(Vector2f(windowWidth / 2.f, 140.f));
 
 }
 
@@ -360,7 +372,10 @@ void optionsMenu::render() {
 		window.draw(bigTraySprite);
 
 		if (currentTray == trayShow::Credit) {
-
+			window.draw(creditBGSprite);
+		}
+		else if (currentTray == trayShow::Help) {
+			window.draw(helpBGSprite);
 		}
 	}
 

@@ -38,15 +38,15 @@ class optionsMenu {
 
 		RenderWindow& window;
 
-		//xt creditText;
+		
 
 		Texture optionsTexture, displayTexture, instructionTexture, creditTexture, backTexture;
 		Texture soundleftArrowTexture, soundrightArrowTexture, musicleftArrowTexture, musicrightArrowTexture, unhighlightRectTexture, highlightRectTexture, musictxtTexture, soundtxtTexture;
-		Texture sameBGTexture, bigTrayTexture;
+		Texture sameBGTexture, bigTrayTexture, helpBGTexture, creditBGTexture;
 
 		Sprite optionsSprite, displaySprite, instructionSprite, creditSprite, backSprite;
 		Sprite soundleftArrowSprite, soundrightArrowSprite, musicleftArrowSprite, musicrightArrowSprite, unhighlightRectSprite, highlightRectSprite, musictxtSprite, soundtxtSprite;
-		Sprite sameBGSprite, bigTraySprite;
+		Sprite sameBGSprite, bigTraySprite, helpBGSprite, creditBGSprite;
 
 		Vector2f optionsVector, displayVector, instructionVector, creditVector, backVector;
 
