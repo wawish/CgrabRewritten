@@ -42,7 +42,7 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 
 	playText(font, "Play", 30),
 	optionsText(font, "Options", 30),
-	exitText(font, "Exit", 30),
+	exitText(font, "Exit", 30)
 
 
 {
