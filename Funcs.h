@@ -39,7 +39,7 @@ public:
 	void checkEvent(RenderWindow* l, gameEngine* engine, bool*);
 
 	Font gameoverFont;
-	Text *lostHeader;
+	Text *lostHeader, *endscore;
 	SoundBuffer loseBuffer;
 	Sound* loseSound;
 	SoundBuffer hoverBuffer;
@@ -48,6 +48,7 @@ public:
 	bool wasOverQuit;
 	SoundBuffer clickBuffer;
 	Sound* clickSound;
+	Vector2f retryButtonInitialScale, quitButtonInitialScale;
 };
 
 class gameWindow

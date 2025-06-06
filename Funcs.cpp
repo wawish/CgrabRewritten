@@ -383,6 +383,7 @@ void gameEngine::run()
 
         } 
         else if (state == GameState::GameOver) {
+            gameover.endscore->setString("Score: " + to_string(player.score));
             gameover.draw(window.window);
             gameover.checkEvent(window.window, this, &goToMenu);
             if (goToMenu) break;
@@ -847,25 +848,27 @@ gameOver::gameOver()
     float bottomMargin = 80.f;
 
     spriteRetryButton->setPosition({trayX + sideMargin, trayY + trayHeight - retryHeight - bottomMargin});
-
-    // Position Quit (right)
     spriteQuitButton->setPosition({ trayX + trayWidth - quitWidth - sideMargin, trayY + trayHeight - quitHeight - bottomMargin });
 
-    //spriteRetryButton->setPosition({ trayX + 40.f, trayY + trayHeight - 40.f });
-    //spriteQuitButton->setPosition({ trayX + trayWidth - 40.f, trayY + trayHeight - 40.f });
+
     spriteRetryButton->setScale({ buttonScale, buttonScale });
     spriteQuitButton->setScale({ buttonScale, buttonScale });
 
-    
+    // Store initial scales for hover effect
+    retryButtonInitialScale = spriteRetryButton->getScale();
+    quitButtonInitialScale = spriteQuitButton->getScale();
 
     lostHeader = new Text(gameoverFont);
     lostHeader->setCharacterSize(102);
     lostHeader->setFillColor(Color::White);
     lostHeader->setString("GAME OVER!");
 
-    
+    endscore = new Text(gameoverFont);
+    endscore->setCharacterSize(64);
+    endscore->setFillColor(Color::White);
+
     float headerX = trayX + 93.f;
-    float headerY = trayY + 75.f;
+    float headerY = trayY + 65.f;
     lostHeader->setPosition({ headerX, headerY });
 }
 
@@ -873,6 +876,10 @@ void gameOver::draw(RenderWindow* l)
 {   
     l->draw(*spriteOverTray);
     l->draw(*lostHeader);
+    float scoreX = ((1920.f - 750) / 2.f) + 230.f;
+    float scoreY = ((1080.f - 450) / 2.f) + 180.f;
+    endscore->setPosition({ scoreX, scoreY });
+    l->draw(*endscore);
     l->draw(*spriteQuitButton);
     l->draw(*spriteRetryButton);
 }
@@ -890,26 +897,49 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine, bool* goToMenu)
             auto mouseClick = Vector2f(Mouse::getPosition(*l));
             if (spriteRetryButton->getGlobalBounds().contains(mouseClick))
             {
-				clickSound->play(); // Play click sound
+                clickSound->play();
                 engine->reset();
             }
             if (spriteQuitButton->getGlobalBounds().contains(mouseClick))
             {
-				clickSound->play(); // Play click sound
+                clickSound->play();
                 if (goToMenu) *goToMenu = true;
             }
         }
     }
 
-    // HOVER SFX
+    // --- HOVER EFFECTS (match main menu) ---
     Vector2f mousePos = Vector2f(Mouse::getPosition(*l));
+    Color buttonHighlight(200, 200, 200);
+    Color buttonNormal(255, 255, 255, 255);
+    const float hoverScaleFactor = 1.1f;
+
     bool overRetry = spriteRetryButton->getGlobalBounds().contains(mousePos);
     bool overQuit = spriteQuitButton->getGlobalBounds().contains(mousePos);
 
-    // Play universal hover sound when mouse enters either button
+    // Play hover sound when mouse enters either button
     if ((overRetry && !wasOverRetry) || (overQuit && !wasOverQuit)) {
         hoverSound->play();
     }
+
+    // Retry button hover
+    if (overRetry) {
+        spriteRetryButton->setScale(retryButtonInitialScale * hoverScaleFactor);
+        spriteRetryButton->setColor(buttonHighlight);
+    } else {
+        spriteRetryButton->setScale(retryButtonInitialScale);
+        spriteRetryButton->setColor(buttonNormal);
+    }
+
+    // Quit button hover
+    if (overQuit) {
+        spriteQuitButton->setScale(quitButtonInitialScale * hoverScaleFactor);
+        spriteQuitButton->setColor(buttonHighlight);
+    } else {
+        spriteQuitButton->setScale(quitButtonInitialScale);
+        spriteQuitButton->setColor(buttonNormal);
+    }
+
     wasOverRetry = overRetry;
     wasOverQuit = overQuit;
 }
