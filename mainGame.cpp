@@ -66,9 +66,6 @@ void Game::run() {
 				selectChoice = gameChoice::exitGame;
 			}
 
-
-			/*GameMechanics gameMechanics(gameWindow, font);
-			selectChoice = gameMechanics.run();*/
 		}
 		else if(selectChoice == gameChoice::showOptions) {
 			optionsMenu options(gameWindow, menuBGM);

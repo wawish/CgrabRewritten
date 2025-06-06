@@ -13,7 +13,7 @@ struct menuChoices {
 	static const int PLAY = 1;
 	static const int OPTIONS = 2;
 	static const int EXIT = 3;
-	//static const int PLAY = 4;
+	
 };
 
 class mainMenu {
@@ -33,6 +33,7 @@ private:
 
 	Texture menubgTexture;
 	Sprite menubgSprite;
+
 	//TEXTURE BUTTONS
 	Texture playButtonTexture, optionsButtonTexture, quitButtonTexture, speakerOnTexture, speakerOffTexture, logoTexture;
 
@@ -44,12 +45,7 @@ private:
 
 	
 
-	//Texture leaderboardButtonTexture;
-	//Sprite leaderboardSprite;
-	//Vector2f leaderboardNormalScale;
-
-
-	/*void updateMenuObjects(float);*/
+	
 	void loadAssets();
 	void setupMenu();
 	int inputMenu(const Event::MouseButtonPressed&);
