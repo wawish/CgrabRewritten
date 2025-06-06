@@ -159,7 +159,7 @@ public:
 
 	explicit gameEngine(RenderWindow* window);
 	static const int MAX_COINS = 5;
-	static const int MAX_BOMBS = 3;
+	static const int MAX_BOMBS = 5;
 	static const int MAX_POWERUPS = 2;
 	// In class gameEngine (public or private section)
 	float coinThresholdTimer = 0.f;

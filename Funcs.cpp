@@ -99,7 +99,7 @@ void gameEngine::collisionchecker()
     for (int i = 0; i < activePowerups; i++) { //collision checker for bombs
         if (power[i].randomPowerSprite->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
             power[i].powerupSounds->play();
-            int chosen = rand() % 30 + 1;
+            int chosen = rand() % 20 + 1;
             
             switch (chosen)
             {
@@ -129,9 +129,13 @@ void gameEngine::collisionchecker()
                     slowBombTimer = 2.f; // Reset timer if already slowed
                 }
                 break;
-            case 7: case 8: case 9: case 10:
+            case 7: case 8: case 9:
                 status = "Increasing Speed...";
                 player.moveSpeed += 25.f;
+                break;
+            case 10:
+                status = "Removing Bombs...";
+                activeBombs = 0;
                 break;
             case 11:
                 cout << player.scoremultiplier + 1 << " Multiplier! " << endl;
@@ -156,7 +160,7 @@ void gameEngine::collisionchecker()
                 break;
             default:
                 cout << "Nothing! (Be happy)" << endl;
-                status = "Nothing! (Be happy)";
+                status = "Nothing! (Be happy)"; // to be removed
                 break;
             }
             power[i].respawnPowerup();
@@ -173,9 +177,12 @@ void gameEngine::thresholdchecker(float delta)
     coinThresholdTimer += delta;
     if (coinThresholdTimer >= coinThresholdInterval && activeCoins < MAX_COINS) {
         cout << "TIME THRESHOLD REACHED! Amount of Coins: " << activeCoins << endl;
-        activeCoins++;
+        activeCoins++; 
+    }
+    if (coinThresholdTimer >= coinThresholdInterval)
+    {
         for (int i = 0; i < activeCoins; ++i) {
-            coin[i].coinFallspeed += 25.f;
+            coin[i].coinFallspeed += 50.f;
         }
         coinThresholdTimer = 0.f;
     }
@@ -186,8 +193,10 @@ void gameEngine::thresholdchecker(float delta)
     if (bombThresholdTimer >= bombThresholdInterval && activeBombs < MAX_BOMBS) {
         cout << "TIME THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
         activeBombs++;
+    }
+    if (bombThresholdTimer >= bombThresholdInterval) {
         for (int i = 0; i < activeBombs; ++i) {
-            bomb[i].bombFallspeed += 25.f;
+            bomb[i].bombFallspeed += 50.f;
             if (i >= oldActiveBombs) {
                 bomb[i].respawnbomb(0);
             }
@@ -200,8 +209,10 @@ void gameEngine::thresholdchecker(float delta)
     if (powerupThresholdTimer >= powerupThresholdInterval && activePowerups < MAX_POWERUPS) {
         cout << "TIME THRESHOLD REACHED! Amount of Powerups: " << activePowerups << endl;
         activePowerups++;
+    }
+    if (powerupThresholdTimer >= powerupThresholdInterval) {
         for (int i = 0; i < activePowerups; ++i) {
-            power[i].powerupFallspeed += 25.f;
+            power[i].powerupFallspeed += 50.f;
         }
         powerupThresholdTimer = 0.f;
     }
