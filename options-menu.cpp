@@ -116,8 +116,7 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 	optionsSprite.setOrigin(Vector2f(optionsSprite.getLocalBounds().size.x / 2.f, 0.f));
 	optionsSprite.setPosition(Vector2f(middle_x, 40.f));
 
-	soundtxtSprite.setPosition(Vector2f(90.f, 200.f));
-	musictxtSprite.setPosition(Vector2f(125.f, 400.f));
+	soundtxtSprite.setPosition(Vector2f(WINDOW_WIDTH / 2 - 220.f , 200.f));
 
 	musictxtSprite.setOrigin(Vector2f(musictxtSprite.getLocalBounds().size.x / 2.f, 0.f));
 	musictxtSprite.setPosition(Vector2f(WINDOW_WIDTH/2, 390.f));
