@@ -11,7 +11,7 @@ void randomNumber()
     srand(static_cast<unsigned int>(time(nullptr)));
 }
 
-float getRandomNumber() {
+double getRandomNumber() {
     static random_device rd;
     static mt19937 gen(rd());
     static uniform_real_distribution<> dis(0.0, 1.0);
