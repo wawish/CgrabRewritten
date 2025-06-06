@@ -105,6 +105,14 @@ void mainMenu::loadAssets() {
 	hoverSound->setBuffer(hoverBuffer);
 	hoverSound->setVolume(80); // Adjust volume as needed
 
+	// Load click sound effect
+	if (!clickBuffer.loadFromFile("Sprites/soundfx/click.wav")) {
+		cerr << "Error loading click sound" << endl;
+	}
+	clickSound = new Sound(clickBuffer);
+	clickSound->setBuffer(clickBuffer);
+	clickSound->setVolume(80); // Adjust volume as needed
+
 
 	menubgSprite.setTexture(menubgTexture, true);
 	logoSprite.setTexture(logoTexture, true);
@@ -256,8 +264,8 @@ int mainMenu::run() {
 
                     if ((!isMuted && speakerOnSprite.getGlobalBounds().contains(mousePos)) ||
                         isMuted && speakerOffSprite.getGlobalBounds().contains(mousePos)) {
-
-                        toggleMute();
+                        
+						toggleMute();
 
                     }
 
@@ -294,15 +302,17 @@ int mainMenu::inputMenu(const Event::MouseButtonPressed& mouseEvent) {
 	// --- END DEBUGGING BLOCK ---
 
 	if (playButtonSprite.getGlobalBounds().contains(mouseClick)) {
-
+		if (clickSound) clickSound->play();
 		cout << "Playing... Grab as many cash as you can!" << endl;
 		return menuChoices::PLAY;
 	}
 
 	else if (optionsButtonSprite.getGlobalBounds().contains(mouseClick)) {
+		if (clickSound) clickSound->play();
 		return menuChoices::OPTIONS;
 	}
 	else if (quitButtonSprite.getGlobalBounds().contains(mouseClick)) {
+		if (clickSound) clickSound->play();
 		cout << "See you next time!" << endl;
 		return menuChoices::EXIT;
 	}
@@ -328,14 +338,22 @@ void mainMenu::updateHover() {
 	bool overPlay = playButtonSprite.getGlobalBounds().contains(mousePos);
 	bool overOptions = optionsButtonSprite.getGlobalBounds().contains(mousePos);
 	bool overQuit = quitButtonSprite.getGlobalBounds().contains(mousePos);
+	bool overSpeaker = isMuted
+		? speakerOffSprite.getGlobalBounds().contains(mousePos)
+		: speakerOnSprite.getGlobalBounds().contains(mousePos);
 
 	// Play hover sound when mouse enters a button
-	if ((overPlay && !wasOverPlay) || (overOptions && !wasOverOptions) || (overQuit && !wasOverQuit)) {
+	if ((overPlay && !wasOverPlay) ||
+		(overOptions && !wasOverOptions) ||
+		(overQuit && !wasOverQuit) ||
+		(overSpeaker && !wasOverSpeaker)) {
 		if (hoverSound) hoverSound->play();
 	}
+
 	wasOverPlay = overPlay;
 	wasOverOptions = overOptions;
 	wasOverQuit = overQuit;
+	wasOverSpeaker = overSpeaker;
 
 
 	if (playButtonSprite.getGlobalBounds().contains(mousePos)) {
@@ -400,6 +418,8 @@ void mainMenu::render() {
 }
 
 void mainMenu::toggleMute() {
+	if (clickSound) clickSound->play();
+
 	isMuted = !isMuted;
 	sf::Listener::setGlobalVolume(isMuted ? 0.f : 100.f); // Toggle volume
 	cout << (isMuted ? "Sound muted." : "Sound unmuted.") << endl;
