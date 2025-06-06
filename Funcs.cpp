@@ -882,8 +882,9 @@ void gameOver::draw(RenderWindow* l)
     l->draw(*spriteOverTray);
     l->draw(*lostHeader);
     float scoreX = ((1920.f - 750) / 2.f) + 230.f;
-    float scoreY = ((1080.f - 450) / 2.f) + 180.f;
+    float scoreY = ((1080.f - 450) / 2.f) + 180.f+10.f;
     endscore->setPosition({ scoreX, scoreY });
+    endscore->setFillColor(Color::Yellow);
     l->draw(*endscore);
     l->draw(*spriteQuitButton);
     l->draw(*spriteRetryButton);
