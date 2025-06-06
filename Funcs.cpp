@@ -858,6 +858,7 @@ gameOver::gameOver()
 
     spriteRetryButton->setScale({ buttonScale, buttonScale });
     spriteQuitButton->setScale({ buttonScale, buttonScale });
+    
 
     // Store initial scales for hover effect
     retryButtonInitialScale = spriteRetryButton->getScale();
@@ -881,9 +882,12 @@ void gameOver::draw(RenderWindow* l)
 {   
     l->draw(*spriteOverTray);
     l->draw(*lostHeader);
+//     float scoreX = ((1920.f - 750) / 2.f) + 230.f;
+//     float scoreY = ((1080.f - 450) / 2.f) + 180.f+10.f;
     float scoreX = ((1920.f - 750) / 2.f) + 215.f;
     float scoreY = ((1080.f - 450) / 2.f) + 180.f;
     endscore->setPosition({ scoreX, scoreY });
+    endscore->setFillColor(Color::Yellow);
     l->draw(*endscore);
     l->draw(*spriteQuitButton);
     l->draw(*spriteRetryButton);
