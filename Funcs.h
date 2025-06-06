@@ -166,6 +166,8 @@ public:
 	float bombThresholdTimer = 0.f;
 	float powerupThresholdTimer = 0.f;
 
+	float currentCoinSpeed;
+	float currentBombSpeed;
 
 	float coinThresholdInterval;
 	float bombThresholdInterval;   

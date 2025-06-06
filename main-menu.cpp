@@ -78,6 +78,34 @@ void mainMenu::loadAssets() {
 			<< logoTexture.getSize().x << "x" << logoTexture.getSize().y << endl;
 	}
 
+	// Load background music
+	if (!menuBGM.openFromFile("Sprites/soundfx/menuBGM.wav")) {
+		cerr << "Error loading menu background music" << endl;
+	}
+	else {
+		menuBGM.setLooping(true);
+		menuBGM.setVolume(40); // Adjust as needed
+		if (!isMuted) menuBGM.play();
+	}
+
+
+	// Load hover sound effect
+	if (!hoverBuffer.loadFromFile("Sprites/soundfx/hover.wav")) {
+		cerr << "Error loading hover sound" << endl;
+	}
+	hoverSound = new Sound(hoverBuffer);
+	hoverSound->setBuffer(hoverBuffer);
+	hoverSound->setVolume(80); // Adjust volume as needed
+
+	// Load click sound effect
+	if (!clickBuffer.loadFromFile("Sprites/soundfx/click.wav")) {
+		cerr << "Error loading click sound" << endl;
+	}
+	clickSound = new Sound(clickBuffer);
+	clickSound->setBuffer(clickBuffer);
+	clickSound->setVolume(80); // Adjust volume as needed
+
+
 	menubgSprite.setTexture(menubgTexture, true);
 	logoSprite.setTexture(logoTexture, true);
 	playButtonSprite.setTexture(playButtonTexture, true);
@@ -228,8 +256,8 @@ int mainMenu::run() {
 
                     if ((!isMuted && speakerOnSprite.getGlobalBounds().contains(mousePos)) ||
                         isMuted && speakerOffSprite.getGlobalBounds().contains(mousePos)) {
-
-                        toggleMute();
+                        
+						toggleMute();
 
                     }
 
@@ -266,15 +294,17 @@ int mainMenu::inputMenu(const Event::MouseButtonPressed& mouseEvent) {
 	// --- END DEBUGGING BLOCK ---
 
 	if (playButtonSprite.getGlobalBounds().contains(mouseClick)) {
-
+		if (clickSound) clickSound->play();
 		cout << "Playing... Grab as many cash as you can!" << endl;
 		return menuChoices::PLAY;
 	}
 
 	else if (optionsButtonSprite.getGlobalBounds().contains(mouseClick)) {
+		if (clickSound) clickSound->play();
 		return menuChoices::OPTIONS;
 	}
 	else if (quitButtonSprite.getGlobalBounds().contains(mouseClick)) {
+		if (clickSound) clickSound->play();
 		cout << "See you next time!" << endl;
 		return menuChoices::EXIT;
 	}
@@ -292,6 +322,28 @@ void mainMenu::updateHover() {
 	Color buttonNormal(255, 255, 255, 255);
 
 	const float hoverScaleFactor = 1.1f;
+
+	// Hover sound effect mechanics
+	bool overPlay = playButtonSprite.getGlobalBounds().contains(mousePos);
+	bool overOptions = optionsButtonSprite.getGlobalBounds().contains(mousePos);
+	bool overQuit = quitButtonSprite.getGlobalBounds().contains(mousePos);
+	bool overSpeaker = isMuted
+		? speakerOffSprite.getGlobalBounds().contains(mousePos)
+		: speakerOnSprite.getGlobalBounds().contains(mousePos);
+
+	// Play hover sound when mouse enters a button
+	if ((overPlay && !wasOverPlay) ||
+		(overOptions && !wasOverOptions) ||
+		(overQuit && !wasOverQuit) ||
+		(overSpeaker && !wasOverSpeaker)) {
+		if (hoverSound) hoverSound->play();
+	}
+
+	wasOverPlay = overPlay;
+	wasOverOptions = overOptions;
+	wasOverQuit = overQuit;
+	wasOverSpeaker = overSpeaker;
+
 
 	if (playButtonSprite.getGlobalBounds().contains(mousePos)) {
 		playButtonSprite.setScale(playButtonInitialScale * hoverScaleFactor);
@@ -355,8 +407,17 @@ void mainMenu::render() {
 }
 
 void mainMenu::toggleMute() {
+	if (clickSound) clickSound->play();
+
 	isMuted = !isMuted;
 	sf::Listener::setGlobalVolume(isMuted ? 0.f : 100.f); // Toggle volume
+	cout << (isMuted ? "Sound muted." : "Sound unmuted.") << endl;
+	if (isMuted) {
+		menuBGM.pause();
+	}
+	else {
+		menuBGM.play();
+	}
 	cout << (isMuted ? "Sound muted." : "Sound unmuted.") << endl;
 }
 
