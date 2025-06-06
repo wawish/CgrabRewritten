@@ -1,4 +1,5 @@
 #include "options-menu.h"
+#include "Funcs.h"
 #include <iostream>
 
 float optionsMenu::soundFX = 80;
@@ -110,17 +111,16 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 
 
 
-
-
-
-
 	backSprite.setPosition(Vector2f(50.f, 40.f));
 
 	optionsSprite.setOrigin(Vector2f(optionsSprite.getLocalBounds().size.x / 2.f, 0.f));
 	optionsSprite.setPosition(Vector2f(middle_x, 40.f));
 
-	soundtxtSprite.setPosition(Vector2f(125.f, 230.f));
-	musictxtSprite.setPosition(Vector2f(125.f, 430.f));
+	soundtxtSprite.setPosition(Vector2f(90.f, 200.f));
+	musictxtSprite.setPosition(Vector2f(125.f, 400.f));
+
+	musictxtSprite.setOrigin(Vector2f(musictxtSprite.getLocalBounds().size.x / 2.f, 0.f));
+	musictxtSprite.setPosition(Vector2f(WINDOW_WIDTH/2, 390.f));
 
 
 
@@ -134,7 +134,7 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 
 	for (int i = 0; i < rectangleVolume; i++) {
 		
-		soundRectangle[i]->setPosition(Vector2f(rectanglePos_x, 230.f + 70.f));
+		soundRectangle[i]->setPosition(Vector2f(350 + rectanglePos_x, 230.f + 70.f));
 		soundRectangle[i]->setScale(Vector2f(globalScale-decrementScale, globalScale - decrementScale));
 
 		rectanglePos_x += rectangleSpace_x;
@@ -142,8 +142,8 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 
 	float soundRightArrow_x = soundRectangle[9]->getPosition().x + rectangleSize_x;
 
-	soundleftArrowSprite.setPosition(Vector2f(125.f, 300.f));
-	soundrightArrowSprite.setPosition(Vector2f(soundRightArrow_x, 230.f + 70.f));
+	soundleftArrowSprite.setPosition(Vector2f(350 + 125.f - 10.f, 300.f - 5.f));
+	soundrightArrowSprite.setPosition(Vector2f(soundRightArrow_x - 10.f, 230.f + 70.f - 5.f));
 
 	//MUSIC SPRITE
 
@@ -151,7 +151,7 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 
 	for (int i = 0; i < rectangleVolume; i++) {
 		
-		musicRectangle[i]->setPosition(Vector2f(rectanglePos_x, 430.f + 70.f));
+		musicRectangle[i]->setPosition(Vector2f(350 + rectanglePos_x, 430.f + 70.f));
 		musicRectangle[i]->setScale(Vector2f(globalScale - decrementScale, globalScale - decrementScale));
 
 		rectanglePos_x += rectangleSpace_x;
@@ -159,8 +159,8 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 
 	float musicRightArrow_x = musicRectangle[9]->getPosition().x + rectangleSize_x;
 
-	musicleftArrowSprite.setPosition(Vector2f(125.f, 500.f));
-	musicrightArrowSprite.setPosition(Vector2f(musicRightArrow_x, 430.f + 70.f));
+	musicleftArrowSprite.setPosition(Vector2f(350 + 125.f - 10.f, 500.f - 5.f));
+	musicrightArrowSprite.setPosition(Vector2f(musicRightArrow_x - 10.f, 430.f + 70.f - 5.f));
 
 
 	instructionSprite.setOrigin(Vector2f(instructionSprite.getLocalBounds().size.x / 2.f, 0.f));
