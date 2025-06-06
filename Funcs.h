@@ -56,7 +56,6 @@ public:
 class Player
 {
 private:
-	float playerX;
 	float frameDuration;
 	float frameTimer;
 	int frameWidth;
@@ -65,6 +64,7 @@ private:
 	int currentFrame;
 public:
 	float moveSpeed;
+	float playerX;
 	Player(RenderWindow*);
 	Texture textureplayer, textureheart;
 	Sprite* spriteplayer, *spriteheart;

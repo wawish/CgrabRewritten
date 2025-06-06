@@ -278,7 +278,8 @@ void gameEngine::reset()
     player.scoremultiplier = 1;
     player.health = 5;
     player.moveSpeed = 700.f;
-    player.spriteplayer->setPosition({ WINDOW_WIDTH / 2, PLAY_OFFSET_Y + PLAY_HEIGHT - player.spriteplayer->getGlobalBounds().size.y });
+    player.playerX = WINDOW_WIDTH / 2; //init for startpos
+    player.spriteplayer->setPosition({ player.playerX, PLAY_OFFSET_Y + PLAY_HEIGHT - player.spriteplayer->getGlobalBounds().size.y });
     activeCoins = 1;
     activeBombs = 0;
     activePowerups = 0;
