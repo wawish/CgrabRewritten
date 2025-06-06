@@ -24,17 +24,15 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 	font(),
 	isMuted(false),
 
-
-
-
 	playButtonTexture(),
 	optionsButtonTexture(),
 	quitButtonTexture(),
 	speakerOnTexture(),
 	speakerOffTexture(),
 	logoTexture(),
+	menubgTexture(),
 
-
+	menubgSprite(menubgTexture),
 	playButtonSprite(playButtonTexture),
 	optionsButtonSprite(optionsButtonTexture),
 	quitButtonSprite(quitButtonTexture),
@@ -45,10 +43,6 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 	playText(font, "Play", 30),
 	optionsText(font, "Options", 30),
 	exitText(font, "Exit", 30)
-
-
-
-
 
 {
 
@@ -74,6 +68,9 @@ mainMenu::~mainMenu() {
 
 void mainMenu::loadAssets() {
 	// Load textures
+	if (!menubgTexture.loadFromFile("Sprites/bg/menubg.png")) {
+		cerr << "Error loading background.png" << endl;
+	}
 	if (!playButtonTexture.loadFromFile("Sprites/buttons/play_button.png") ||
 		!optionsButtonTexture.loadFromFile("Sprites/buttons/options_button.png") ||
 		!quitButtonTexture.loadFromFile("Sprites/buttons/quit_button.png") ||
@@ -87,6 +84,7 @@ void mainMenu::loadAssets() {
 			<< logoTexture.getSize().x << "x" << logoTexture.getSize().y << endl;
 	}
 
+	menubgSprite.setTexture(menubgTexture, true);
 	logoSprite.setTexture(logoTexture, true);
 	playButtonSprite.setTexture(playButtonTexture, true);
 	optionsButtonSprite.setTexture(optionsButtonTexture, true);
@@ -340,7 +338,7 @@ void mainMenu::updateHover() {
 void mainMenu::render() {
 
 	window.clear(Color::Black);
-
+	window.draw(menubgSprite);
 
 
 
