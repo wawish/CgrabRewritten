@@ -258,6 +258,7 @@ void gameEngine::run()
 
                 state = GameState::GameOver;
 				playBGM.stop(); // Stop background music on game over
+				gameover.loseSound->play(); // Play lose sound
             }
 
         } else if (state == GameState::GameOver) {
@@ -671,6 +672,14 @@ gameOver::gameOver()
         cout << "ERROR LOADING FONT" << endl;
     }
     
+
+    if (!loseBuffer.loadFromFile("Sprites/soundfx/lose.wav")) {
+        std::cout << "ERROR LOADING LOSE SOUND" << std::endl;
+    }
+    loseSound = new Sound(loseBuffer);
+    loseSound->setBuffer(loseBuffer);
+    loseSound->setVolume(100); // Adjust as needed
+
 
     float trayWidth = 750.f;
     float trayHeight = 450.f;

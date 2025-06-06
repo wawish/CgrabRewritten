@@ -27,6 +27,8 @@ public:
 	void checkEvent(RenderWindow* l, gameEngine*);
 	Font gameoverFont;
 	Text *lostHeader;
+	SoundBuffer loseBuffer;
+	Sound* loseSound;
 };
 
 class gameWindow
