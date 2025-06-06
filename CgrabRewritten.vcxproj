@@ -141,9 +141,13 @@
   <ItemGroup>
     <ClCompile Include="CgrabRewritten.cpp" />
     <ClCompile Include="Funcs.cpp" />
+    <ClCompile Include="main-menu.cpp" />
+    <ClCompile Include="mainGame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Funcs.h" />
+    <ClInclude Include="main-menu.h" />
+    <ClInclude Include="mainGame.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

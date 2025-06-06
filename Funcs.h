@@ -1,9 +1,11 @@
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFMl/System.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
+#include <random>
 
 #define PLAY_WIDTH 1280
 #define PLAY_HEIGHT 720
@@ -24,7 +26,9 @@ public:
 	Texture textureOverTray, textureQuitButton, textureRetryButton;
 	Sprite* spriteOverTray, *spriteQuitButton, *spriteRetryButton;
 	void draw(RenderWindow* l);
-	void checkEvent(RenderWindow* l, gameEngine*);
+
+	void checkEvent(RenderWindow* l, gameEngine* engine);
+
 	Font gameoverFont;
 	Text *lostHeader;
 	SoundBuffer loseBuffer;
@@ -39,11 +43,10 @@ public:
 
 class gameWindow
 {
-
 public:
 	RenderWindow* window;
-	gameWindow();
-	~gameWindow();	
+	gameWindow(RenderWindow* window);
+	~gameWindow();
 	Texture texturebg;
 	Sprite* spritebg;
 	Font gameFont;
@@ -153,7 +156,8 @@ class gameEngine
 public:
 	enum class GameState { Playing, GameOver, Paused };
 	GameState state = GameState::Playing;
-	gameEngine();
+
+	explicit gameEngine(RenderWindow* window);
 	static const int MAX_COINS = 5;
 	static const int MAX_BOMBS = 3;
 	static const int MAX_POWERUPS = 2;
@@ -165,6 +169,7 @@ public:
 	Bomb bomb[MAX_BOMBS];
 	Powerups power[MAX_POWERUPS];
 	String status;
+
 	int activeCoins;
 	int activeBombs;
 	int activePowerups;
@@ -176,7 +181,7 @@ public:
 	float bombSlowFactor;
 	Music playBGM;
 
-	
+
 	void run();
 	void updatetext();
 	void spawnbombs(float);
