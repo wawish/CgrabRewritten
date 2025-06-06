@@ -14,7 +14,8 @@ class optionsMenu {
 		~optionsMenu();
 
 		void run();
-		
+
+		static bool isMuted;
 		static float soundFX;
 		static float musicVol;
 
