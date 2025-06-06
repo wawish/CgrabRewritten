@@ -20,6 +20,17 @@ class optionsMenu {
 
 	private:
 
+		enum class trayInfo {
+			None, Show
+		};
+
+		enum class trayShow {
+			None, Help, Credit
+		};
+
+		trayInfo info;
+		trayShow currentTray;
+
 		int inputOptions(const Event::MouseButtonPressed&);
 
 		void changeSettings();
@@ -27,13 +38,15 @@ class optionsMenu {
 
 		RenderWindow& window;
 
+		
+
 		Texture optionsTexture, displayTexture, instructionTexture, creditTexture, backTexture;
 		Texture soundleftArrowTexture, soundrightArrowTexture, musicleftArrowTexture, musicrightArrowTexture, unhighlightRectTexture, highlightRectTexture, musictxtTexture, soundtxtTexture;
-		Texture sameBGTexture;
+		Texture sameBGTexture, bigTrayTexture, helpBGTexture, creditBGTexture;
 
 		Sprite optionsSprite, displaySprite, instructionSprite, creditSprite, backSprite;
 		Sprite soundleftArrowSprite, soundrightArrowSprite, musicleftArrowSprite, musicrightArrowSprite, unhighlightRectSprite, highlightRectSprite, musictxtSprite, soundtxtSprite;
-		Sprite sameBGSprite;
+		Sprite sameBGSprite, bigTraySprite, helpBGSprite, creditBGSprite;
 
 		Vector2f optionsVector, displayVector, instructionVector, creditVector, backVector;
 

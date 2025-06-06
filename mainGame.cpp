@@ -40,7 +40,7 @@ void Game::run() {
 			mainMenu menuScreen(gameWindow);
 			choice = menuScreen.run();
 			if (choice == menuChoices::PLAY) {
-				menuBGM.stop();
+				
 				selectChoice = gameChoice::playGame;
 			}
 			else if (choice == menuChoices::OPTIONS) {
@@ -51,6 +51,7 @@ void Game::run() {
 			}
 		}
 		else if (selectChoice == gameChoice::playGame) {
+			menuBGM.stop();
 			comicSlideShow show;
 			show.draw(&gameWindow);
 			gameEngine gamingRun(&gameWindow);
@@ -58,6 +59,7 @@ void Game::run() {
 
 
 			if (gameWindow.isOpen()) {
+				menuBGM.play();
 				selectChoice = gameChoice::showMenu;
 			}
 			else {
