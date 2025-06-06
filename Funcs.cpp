@@ -290,6 +290,10 @@ void gameEngine::reset()
     bombSlowFactor = 0.5f;
     status = "";
 
+    for (int i = 0; i < MAX_COINS; ++i) coin[i].coinFallspeed = 250.f;
+    for (int i = 0; i < MAX_BOMBS; ++i) bomb[i].bombFallspeed = 250.f;
+    for (int i = 0; i < MAX_POWERUPS; ++i) power[i].powerupFallspeed = 250.f;
+
     // Respawn all objects
     for (int i = 0; i < MAX_COINS; ++i) coin[i].respawncoin();
     for (int i = 0; i < MAX_BOMBS; ++i) bomb[i].respawnbomb(0);
