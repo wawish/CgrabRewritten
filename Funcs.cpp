@@ -14,6 +14,8 @@ void randomNumber()
 gameEngine::gameEngine(RenderWindow* window)
     : window(window), player(window), state(GameState::Playing)
 {
+    currentCoinSpeed = 250.f;
+    currentBombSpeed = 250.f;
     activeCoins = 1; //coins currently onscreen
     activeBombs = 0; //bombs currently onscreen
     activePowerups = 0;
@@ -181,8 +183,9 @@ void gameEngine::thresholdchecker(float delta)
     }
     if (coinThresholdTimer >= coinThresholdInterval)
     {
+        currentCoinSpeed += 50.f;
         for (int i = 0; i < activeCoins; ++i) {
-            coin[i].coinFallspeed += 50.f;
+            coin[i].coinFallspeed = currentCoinSpeed;
         }
         coinThresholdTimer = 0.f;
     }
@@ -195,8 +198,9 @@ void gameEngine::thresholdchecker(float delta)
         activeBombs++;
     }
     if (bombThresholdTimer >= bombThresholdInterval) {
+        currentBombSpeed += 50.f;
         for (int i = 0; i < activeBombs; ++i) {
-            bomb[i].bombFallspeed += 50.f;
+            bomb[i].bombFallspeed = currentBombSpeed;
             if (i >= oldActiveBombs) {
                 bomb[i].respawnbomb(0);
             }
@@ -204,7 +208,7 @@ void gameEngine::thresholdchecker(float delta)
         bombThresholdTimer = 0.f;
     }
 
-    // POWERUPS
+    // POWERUPS (unchanged)
     powerupThresholdTimer += delta;
     if (powerupThresholdTimer >= powerupThresholdInterval && activePowerups < MAX_POWERUPS) {
         cout << "TIME THRESHOLD REACHED! Amount of Powerups: " << activePowerups << endl;
@@ -302,6 +306,8 @@ void gameEngine::reset()
     slowBombTimer = 0.f;
     bombSlowFactor = 0.5f;
     status = "";
+    currentBombSpeed = 250.f;
+    currentCoinSpeed = 250.f;
 
     coinThresholdTimer = 0.f;
     bombThresholdTimer = 0.f;
