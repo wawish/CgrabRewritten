@@ -19,7 +19,7 @@ double getRandomNumber() {
     return dis(gen);
 }
 
-comicSlideShow::comicSlideShow(RenderWindow* l)
+comicSlideShow::comicSlideShow()
 {
     if(!frame1.loadFromFile("Sprites/comic/1.png") || !frame2.loadFromFile("Sprites/comic/2.png") || !frame3.loadFromFile("Sprites/comic/3.png"))
     {
@@ -223,11 +223,16 @@ void gameEngine::collisionchecker()
                 }
                 break;
             case 7: case 8: case 9:
-                status = "Increasing Speed...";
+                status = "Increasing Player Speed...";
                 player.moveSpeed += 25.f;
                 break;
             case 10:
                 status = "Removing Bombs...";
+                for (int i = 0; i < activeBombs; ++i)
+                {
+                    float randomValue = PLAY_OFFSET_X + (PLAY_WIDTH - 64) * getRandomNumber();
+                    bomb[i].spritebomb->setPosition({ randomValue, PLAY_OFFSET_Y });
+                }
                 activeBombs = 0;
                 break;
             case 11:
@@ -252,13 +257,13 @@ void gameEngine::collisionchecker()
                 activeBombs += 1;
                 break;
             default:
-                cout << "Nothing! (Be happy)" << endl;
-                status = "Nothing! (Be happy)"; // to be removed
+                cout << "+500 Score!" << endl;
+                player.score += 500;
+                status = "+500 Score!"; // to be removed
                 break;
             }
             for (int i = 0; i < activePowerups; ++i)
             {
-                
                 float randomValue = PLAY_OFFSET_X + (PLAY_WIDTH - 64) * getRandomNumber();
                 power[i].randomPowerSprite->setPosition({ randomValue, PLAY_OFFSET_Y });
             }
@@ -876,7 +881,7 @@ void gameOver::draw(RenderWindow* l)
 {   
     l->draw(*spriteOverTray);
     l->draw(*lostHeader);
-    float scoreX = ((1920.f - 750) / 2.f) + 230.f;
+    float scoreX = ((1920.f - 750) / 2.f) + 215.f;
     float scoreY = ((1080.f - 450) / 2.f) + 180.f;
     endscore->setPosition({ scoreX, scoreY });
     l->draw(*endscore);
@@ -908,7 +913,6 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine, bool* goToMenu)
         }
     }
 
-    // --- HOVER EFFECTS (match main menu) ---
     Vector2f mousePos = Vector2f(Mouse::getPosition(*l));
     Color buttonHighlight(200, 200, 200);
     Color buttonNormal(255, 255, 255, 255);
@@ -917,12 +921,10 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine, bool* goToMenu)
     bool overRetry = spriteRetryButton->getGlobalBounds().contains(mousePos);
     bool overQuit = spriteQuitButton->getGlobalBounds().contains(mousePos);
 
-    // Play hover sound when mouse enters either button
     if ((overRetry && !wasOverRetry) || (overQuit && !wasOverQuit)) {
         hoverSound->play();
     }
 
-    // Retry button hover
     if (overRetry) {
         spriteRetryButton->setScale(retryButtonInitialScale * hoverScaleFactor);
         spriteRetryButton->setColor(buttonHighlight);
@@ -931,7 +933,6 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine, bool* goToMenu)
         spriteRetryButton->setColor(buttonNormal);
     }
 
-    // Quit button hover
     if (overQuit) {
         spriteQuitButton->setScale(quitButtonInitialScale * hoverScaleFactor);
         spriteQuitButton->setColor(buttonHighlight);
