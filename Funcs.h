@@ -153,8 +153,13 @@ public:
 
 class gameEngine
 {
+private:
+	static const int NUM_PANELS = 10;
+	Texture pageTextures[NUM_PANELS];
+	Sprite *pageSprites[NUM_PANELS];
+
 public:
-	enum class GameState { Playing, GameOver, Paused };
+	enum class GameState { Playing, GameOver, Paused, Cutscene };
 	GameState state = GameState::Playing;
 
 	explicit gameEngine(RenderWindow* window);
@@ -200,6 +205,5 @@ public:
 	void bombSlowchecker(float);
 	void clamp();
 	void reset();
+	void playCutscene();
 };
-
-

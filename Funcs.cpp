@@ -256,6 +256,9 @@ void gameEngine::run()
 {
     clamp();
     Clock clock;
+
+    playCutscene();
+
     while (window.window->isOpen()) {
         float delta = clock.restart().asSeconds();
         window.window->clear();
@@ -279,15 +282,130 @@ void gameEngine::run()
 				playBGM.stop(); // Stop background music on game over
 				gameover.loseSound->play(); // Play lose sound
             }
-
         } 
         else if (state == GameState::GameOver) {
             gameover.draw(window.window);
             gameover.checkEvent(window.window, this);
         }
+        else if (state == GameState::Cutscene) {
+            //handle lang if need
+        }
 
         window.window->display();
     }
+}
+
+void gameEngine::playCutscene()
+{
+	state = GameState::Cutscene;
+
+    // Declare arrays properly
+    Texture pageTextures[10]; // 0-9, using 1-9
+    Sprite *pageSprites[10];   // 0-9, using 1-9
+
+    // Load textures and create sprites individually (1-9)
+    pageTextures[1].loadFromFile("Sprites/cutscene/page1.png");
+    pageSprites[1] = new Sprite(pageTextures[1]);
+    pageSprites[1]->setScale(Vector2f(1.f, 1.f));
+
+    pageTextures[2].loadFromFile("Sprites/cutscene/page2.png");
+    pageSprites[2] = new Sprite(pageTextures[2]);
+    pageSprites[2]->setScale(Vector2f(1.f, 1.f));
+
+    pageTextures[3].loadFromFile("Sprites/cutscene/page3.png");
+    pageSprites[3] = new Sprite(pageTextures[3]);
+    pageSprites[3]->setScale(Vector2f(1.f, 1.f));
+
+    pageTextures[4].loadFromFile("Sprites/cutscene/page4.png");
+    pageSprites[4] = new Sprite(pageTextures[4]);
+    pageSprites[4]->setScale(Vector2f(1.f, 1.f));
+
+    pageTextures[5].loadFromFile("Sprites/cutscene/page5.png");
+    pageSprites[5] = new Sprite(pageTextures[5]);
+    pageSprites[5]->setScale(Vector2f(1.f, 1.f));
+
+    pageTextures[6].loadFromFile("Sprites/cutscene/page6.png");
+    pageSprites[6] = new Sprite(pageTextures[6]);
+    pageSprites[6]->setScale(Vector2f(1.f, 1.f));
+
+    pageTextures[7].loadFromFile("Sprites/cutscene/page7.png");
+    pageSprites[7] = new Sprite(pageTextures[7]);
+    pageSprites[7]->setScale(Vector2f(1.f, 1.f));
+
+    pageTextures[8].loadFromFile("Sprites/cutscene/page8.png");
+    pageSprites[8] = new Sprite(pageTextures[8]);
+    pageSprites[8]->setScale(Vector2f(1.f, 1.f));
+
+    pageTextures[9].loadFromFile("Sprites/cutscene/page9.png");
+    pageSprites[9] = new Sprite(pageTextures[9]);
+    pageSprites[9]->setScale(Vector2f(1.f, 1.f));
+
+
+    Vector2f leftPos(200, 100); //Adjust for layout
+    Vector2f rightPos(1000, 100); //adjust spacing
+
+    Clock pageClock;
+    int currentPagePair = 1;
+    const float pageDisplayTime = 3.0f;
+
+    while (window.window->isOpen() && state == GameState::Cutscene && currentPagePair < 9)
+    {
+        Event event;
+        while (window.window->pollEvent(event))
+        {
+            if (event.type == Event::Closed)
+            {
+                window.window->close();
+                return;
+            }
+            if (event.type == Event::KeyPressed)
+            {
+                if (event.key.code == Keyboard::Enter || event.key.code == Keyboard::Space)
+                {
+                    currentPagePair += 2;
+                    pageClock.restart();
+                    break;
+                }
+                if (event.key.code == Keyboard::Escape)
+                {
+                    state = GameState::Playing;
+                    return;
+                }
+            }
+        }
+
+        if (pageClock.getElapsedTime().asSeconds() >= pageDisplayTime)
+        {
+            currentPagePair += 2;
+            pageClock.restart();
+        }
+
+        window.window->clear();
+
+        if (currentPagePair < 9)
+        {
+            pageSprites[currentPagePair + 1]->setPosition(leftPos);
+            window.window->draw(pageSprites[currentPagePair]);
+
+            if (currentPagePair + 1 < 9)
+            {
+                pageSprites[currentPagePair + 1]->setPosition(rightPos);
+                window.window->draw(pageSprites[currentPagePair + 1]);
+            }
+        }
+
+        // Optional: Show skip text
+        Font skipFont;
+        if (skipFont.loadFromFile("Sprites/Fonts/ka1.ttf")) {
+            Text skipText("Press ENTER/SPACE to continue, ESC to skip", skipFont, 24);
+            skipText.setPosition(Vector2f(500, 650));
+            skipText.setFillColor(Color::White);
+            window.window->draw(skipText);
+        }
+
+        window.window->display();
+    }
+	state = GameState::Playing;
 }
 
 void gameEngine::reset()
