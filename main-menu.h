@@ -58,6 +58,12 @@ private:
 
 	void toggleMute();
 
+	Music menuBGM;
+	SoundBuffer hoverBuffer;
+	Sound* hoverSound;
+	bool wasOverPlay = false;
+	bool wasOverOptions = false;
+	bool wasOverQuit = false;
 };
 
 // Helper function declaration
