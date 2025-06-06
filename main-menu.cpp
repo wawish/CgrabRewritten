@@ -328,14 +328,22 @@ void mainMenu::updateHover() {
 	bool overPlay = playButtonSprite.getGlobalBounds().contains(mousePos);
 	bool overOptions = optionsButtonSprite.getGlobalBounds().contains(mousePos);
 	bool overQuit = quitButtonSprite.getGlobalBounds().contains(mousePos);
+	bool overSpeaker = isMuted
+		? speakerOffSprite.getGlobalBounds().contains(mousePos)
+		: speakerOnSprite.getGlobalBounds().contains(mousePos);
 
 	// Play hover sound when mouse enters a button
-	if ((overPlay && !wasOverPlay) || (overOptions && !wasOverOptions) || (overQuit && !wasOverQuit)) {
+	if ((overPlay && !wasOverPlay) ||
+		(overOptions && !wasOverOptions) ||
+		(overQuit && !wasOverQuit) ||
+		(overSpeaker && !wasOverSpeaker)) {
 		if (hoverSound) hoverSound->play();
 	}
+
 	wasOverPlay = overPlay;
 	wasOverOptions = overOptions;
 	wasOverQuit = overQuit;
+	wasOverSpeaker = overSpeaker;
 
 
 	if (playButtonSprite.getGlobalBounds().contains(mousePos)) {

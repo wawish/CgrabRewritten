@@ -64,6 +64,7 @@ private:
 	bool wasOverPlay = false;
 	bool wasOverOptions = false;
 	bool wasOverQuit = false;
+	bool wasOverSpeaker = false;
 };
 
 // Helper function declaration
