@@ -656,11 +656,11 @@ void Powerups::renderPowerup(RenderWindow* l)
 
 gameOver::gameOver()
 {
-    if (!textureRetryButton.loadFromFile("Sprites/buttons/playbutton.png")) //checks if it load properly
+    if (!textureRetryButton.loadFromFile("Sprites/buttons/restartbutton.png")) //checks if it load properly
     {
         cout << "ERROR LOADING SPRITE" << endl;
     }
-    if (!textureQuitButton.loadFromFile("Sprites/buttons/exitbutton.png")) //checks if it load properly
+    if (!textureQuitButton.loadFromFile("Sprites/buttons/menubutton.png")) //checks if it load properly
     {
         cout << "ERROR LOADING SPRITE" << endl;
     }
