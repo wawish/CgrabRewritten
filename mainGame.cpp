@@ -51,7 +51,7 @@ void Game::run() {
 			}
 		}
 		else if (selectChoice == gameChoice::playGame) {
-			comicSlideShow show(&gameWindow);
+			comicSlideShow show;
 			show.draw(&gameWindow);
 			gameEngine gamingRun(&gameWindow);
 			gamingRun.run();
