@@ -25,7 +25,7 @@ void comicSlideShow::draw(RenderWindow* l)
     Texture* frames[] = { &frame1, &frame2, &frame3 };
     const int numFrames = 3;
     const float fadeInTime = 1.0f;
-    const float holdTime = 3.0f;
+    const float holdTime = 5.0f;
     const float fadeOutTime = 1.0f;
     const float totalTime = fadeInTime + holdTime + fadeOutTime;
 
@@ -112,7 +112,7 @@ gameEngine::gameEngine(RenderWindow* window)
     bombThresholdTimer = 0.f;
     bombThresholdInterval = 25.f; // Interval for bomb threshold in seconds
     powerupThresholdTimer = 0.f;
-    powerupThresholdInterval = 100.f; // Interval for powerup threshold in seconds
+    powerupThresholdInterval = 20.f; // Interval for powerup threshold in seconds
 
     if (!playBGM.openFromFile("Sprites/soundfx/playBGM.wav")) {
         std::cout << "ERROR LOADING BACKGROUND MUSIC" << std::endl;
@@ -320,18 +320,21 @@ void gameEngine::bombSlowchecker(float x)
 
 void gameEngine::updatetext()
 {
-    window.T_health->setString("Health: " + to_string(player.health));
     window.T_score->setString("Score: " + to_string(player.score));
-    window.T_bombs->setString("Bombs: " + to_string(activeBombs));
-    window.T_coins->setString("Coins: " + to_string(activeCoins));
-    window.T_multiplier->setString("Multiplier: x" + to_string(player.scoremultiplier));
-    window.T_status->setString(status);
+    sf::FloatRect scoreBounds = window.T_score->getLocalBounds();
+    window.T_score->setOrigin({ scoreBounds.size.x / 2.f, scoreBounds.size.y / 2.f });
+    window.T_score->setPosition(Vector2f(WINDOW_WIDTH / 2, 30.f));
+    window.T_score->setCharacterSize(64);
+    window.T_score->setFillColor(sf::Color::White);
 
-    window.window->draw(*window.T_health);
+    window.T_status->setString(status);
+    sf::FloatRect statusBounds = window.T_status->getLocalBounds();
+	window.T_status->setOrigin({ statusBounds.size.x / 2.f, statusBounds.size.y / 2.f });
+	window.T_status->setPosition(Vector2f(WINDOW_WIDTH / 2, 1020.f));
+	window.T_status->setCharacterSize(45);
+	window.T_status->setFillColor(sf::Color::White);
+
     window.window->draw(*window.T_score);
-    window.window->draw(*window.T_bombs);
-    window.window->draw(*window.T_coins);
-    window.window->draw(*window.T_multiplier);
     window.window->draw(*window.T_status);
 }
 
