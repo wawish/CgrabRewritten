@@ -228,7 +228,7 @@ void gameEngine::collisionchecker()
                 break;
             case 10:
                 status = "Removing Bombs...";
-                for (int i = 0; i < activePowerups; ++i)
+                for (int i = 0; i < activeBombs; ++i)
                 {
                     float randomValue = PLAY_OFFSET_X + (PLAY_WIDTH - 64) * getRandomNumber();
                     bomb[i].spritebomb->setPosition({ randomValue, PLAY_OFFSET_Y });
@@ -881,8 +881,10 @@ void gameOver::draw(RenderWindow* l)
 {   
     l->draw(*spriteOverTray);
     l->draw(*lostHeader);
-    float scoreX = ((1920.f - 750) / 2.f) + 230.f;
-    float scoreY = ((1080.f - 450) / 2.f) + 180.f+10.f;
+//     float scoreX = ((1920.f - 750) / 2.f) + 230.f;
+//     float scoreY = ((1080.f - 450) / 2.f) + 180.f+10.f;
+    float scoreX = ((1920.f - 750) / 2.f) + 215.f;
+    float scoreY = ((1080.f - 450) / 2.f) + 180.f;
     endscore->setPosition({ scoreX, scoreY });
     endscore->setFillColor(Color::Yellow);
     l->draw(*endscore);
