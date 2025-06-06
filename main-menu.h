@@ -58,6 +58,7 @@ private:
 
 	void toggleMute();
 
+	Music menuBGM;
 	SoundBuffer hoverBuffer;
 	Sound* hoverSound;
 	bool wasOverPlay = false;
