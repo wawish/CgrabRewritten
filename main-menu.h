@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include "Funcs.h"
+#include <string>
 
 using namespace sf;
 using namespace std;
@@ -64,5 +65,5 @@ private:
 
 };
 
-//void positionText(Text&, float, float);
-#pragma once
+// Helper function declaration
+//static void positionText(Text& text, float x, float y, bool centered = true);

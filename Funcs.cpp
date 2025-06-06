@@ -8,11 +8,11 @@ using namespace std;
 
 void randomNumber()
 {
-    srand(time(NULL));
+    srand(static_cast<unsigned int>(time(nullptr)));
 }
 
-gameEngine::gameEngine()
-    : window(), player(window.window), state(GameState::Playing)
+gameEngine::gameEngine(RenderWindow* window)
+    : window(window), player(window), state(GameState::Playing)
 {
     activeCoins = 1; //coins currently onscreen
     activeBombs = 0; //bombs currently onscreen
@@ -249,7 +249,8 @@ void gameEngine::run()
                 state = GameState::GameOver;
             }
 
-        } else if (state == GameState::GameOver) {
+        } 
+        else if (state == GameState::GameOver) {
             gameover.draw(window.window);
             gameover.checkEvent(window.window, this);
         }
@@ -286,11 +287,9 @@ void gameEngine::reset()
     state = GameState::Playing;
 }
 
-gameWindow::gameWindow()
-{
-    if (!gameFont.openFromFile("Sprites/Fonts/ka1.ttf"))
-    {
-        cout << "ERROR LOADING FONT" << endl;
+gameWindow::gameWindow(RenderWindow* window) : window(window) {
+    if (!gameFont.openFromFile("Sprites/Fonts/ka1.ttf")) {
+        cerr << "ERROR LOADING FONT" << endl;
     }
     T_health = new Text(gameFont);
     T_score = new Text(gameFont);
@@ -320,22 +319,16 @@ gameWindow::gameWindow()
     T_multiplier->setFillColor({ 0, 0, 0 });
     T_status->setFillColor({ 0, 0, 0 });
     
-    
-    
-    window = new RenderWindow(VideoMode({ 1920, 1080 }), "Cash Grab!"); //initializes the window
-    window->setFramerateLimit(60);
-    if (!texturebg.loadFromFile("Sprites/bg/testbg.png")) //checks if it load properly
-    {
-        cout << "ERROR LOADING SPRITE" << endl;
+    if (!texturebg.loadFromFile("Sprites/bg/testbg.png")) {
+        cerr << "ERROR LOADING SPRITE" << endl;
     }
     spritebg = new Sprite(texturebg);
     spritebg->setPosition({ 0.f, 0.f });
-
 }
 
 gameWindow::~gameWindow() //deconstructor
 {
-    delete window;
+    
     delete spritebg;
     delete T_health;
     delete T_coins;
@@ -347,6 +340,7 @@ gameWindow::~gameWindow() //deconstructor
 Player::~Player() //deconstructor
 {
     delete spriteplayer;
+    delete spriteheart;
 }
  
 Player::Player(RenderWindow* l)

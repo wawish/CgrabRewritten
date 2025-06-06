@@ -52,8 +52,8 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 
 {
 
-	if (!font.openFromFile("Sprites/Fonts/ka1.ttf")) {
-		cerr << "Error loading font" << FONT_PATH << endl;
+	if (!font.openFromFile(FONT_PATH)) {
+		cerr << "Error loading font: " << FONT_PATH << endl;
 	}
 
 	playText.setFont(font);
@@ -114,8 +114,8 @@ void mainMenu::loadAssets() {
 void mainMenu::setupMenu() {
 	// Set up text properties
 
-	float windowWidth = window.getSize().x;
-	float windowHeight = window.getSize().y;
+	float windowWidth = static_cast<float>(window.getSize().x);
+	float windowHeight = static_cast<float>(window.getSize().y);
 
 	float menuPos_x = windowWidth / 2.0f;
 	float logoPos_y = windowHeight * 0.25f;
@@ -258,6 +258,7 @@ int mainMenu::run() {
 
 	return menuChoices::EXIT;
 }
+
 
 int mainMenu::inputMenu(const Event::MouseButtonPressed& mouseEvent) {
 

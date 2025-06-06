@@ -37,7 +37,7 @@ void Game::run() {
 			}
 		}
 		else if (selectChoice == gameChoice::playGame) {
-			gameEngine gamingRun;
+			gameEngine gamingRun(&gameWindow);
 			gamingRun.run();
 
 
@@ -52,12 +52,12 @@ void Game::run() {
 			/*GameMechanics gameMechanics(gameWindow, font);
 			selectChoice = gameMechanics.run();*/
 		}
-		else if (selectChoice == gameChoice::showOptions) {
-
+		else if(selectChoice == gameChoice::showOptions) {
+			
 			while (selectChoice == gameChoice::showOptions && gameWindow.isOpen()) {
 				while (const optional event = gameWindow.pollEvent()) {
 					if (event->is<Event::Closed>()) {
-
+						
 						selectChoice = gameChoice::exitGame;
 						gameWindow.close();
 					}
