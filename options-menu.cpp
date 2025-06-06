@@ -9,6 +9,9 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 
 	window(window),
 	menuBGM(BGM),
+
+	info(trayInfo::None),
+	currentTray(trayShow::None),
 	optionsSprite(optionsTexture),
 	displaySprite(displayTexture),
 	instructionSprite(instructionTexture),
@@ -22,7 +25,8 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 	highlightRectSprite(highlightRectTexture),
 	soundtxtSprite(soundtxtTexture),
 	musictxtSprite(musictxtTexture),
-	sameBGSprite(sameBGTexture)
+	sameBGSprite(sameBGTexture),
+	bigTraySprite(bigTrayTexture)
 	
 {
 
@@ -41,7 +45,8 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 		!soundtxtTexture.loadFromFile("Sprites/buttons/soundtxt.png") ||
 		!musictxtTexture.loadFromFile("Sprites/buttons/musictxt.png") ||
 		!highlightRectTexture.loadFromFile("Sprites/buttons/highlight.png") ||
-		!sameBGTexture.loadFromFile("Sprites/bg/menubg.png")) {
+		!sameBGTexture.loadFromFile("Sprites/bg/menubg.png") ||
+		!bigTrayTexture.loadFromFile("Sprites/buttons/bigtray.png")) {
 		cerr << "Error loading textures [OPTIONS]" << endl;
 	}
 
@@ -55,8 +60,9 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 	soundrightArrowSprite.setScale(Vector2f(globalScale, globalScale));
 	musicleftArrowSprite.setScale(Vector2f(globalScale, globalScale));
 	musicrightArrowSprite.setScale(Vector2f(globalScale, globalScale));
-	instructionSprite.setScale(Vector2f(globalScale, globalScale));
-	creditSprite.setScale(Vector2f(globalScale, globalScale));
+
+	instructionSprite.setScale(Vector2f(1.2, 1.2));
+	creditSprite.setScale(Vector2f(1.2, 1.2));
 
 	float windowWidth = static_cast<float>(window.getSize().x);
 	float windowHeight = static_cast<float>(window.getSize().y);
@@ -78,6 +84,7 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 	soundtxtSprite.setTexture(soundtxtTexture, true);
 	musictxtSprite.setTexture(musictxtTexture, true);
 	sameBGSprite.setTexture(sameBGTexture, true);
+	bigTraySprite.setTexture(bigTrayTexture, true);
 
 	soundRectangle[0] = new Sprite(unhighlightRectTexture);
 	soundRectangle[1] = new Sprite(unhighlightRectTexture);
@@ -156,14 +163,15 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 	musicrightArrowSprite.setPosition(Vector2f(musicRightArrow_x, 430.f + 70.f));
 
 
-	instructionSprite.setOrigin(Vector2f(instructionSprite.getLocalBounds().size.x, 0.f));
-	instructionSprite.setPosition(Vector2f(50.f, 40.f));
+	instructionSprite.setOrigin(Vector2f(instructionSprite.getLocalBounds().size.x / 2.f, 0.f));
+	instructionSprite.setPosition(Vector2f(windowWidth - 265.0f , 400));
 
-	creditSprite.setOrigin(Vector2f(creditSprite.getLocalBounds().size.x, 0.f));
-	creditSprite.setPosition(Vector2f(50.f, 40.f));
+	creditSprite.setOrigin(Vector2f(creditSprite.getLocalBounds().size.x / 2.f, 0.f));
+	creditSprite.setPosition(Vector2f(windowWidth - 265.0f, windowHeight - 500));
 
 
-	//displaySprite.setPosition(Vector2f(50.f, 40.f));
+	bigTraySprite.setOrigin(Vector2f(bigTraySprite.getLocalBounds().size.x / 2.f, 0.f));
+	bigTraySprite.setPosition(Vector2f(windowWidth / 2.f, 140.f));
 
 }
 
@@ -246,17 +254,44 @@ void optionsMenu::run() {
 			
 			if (const auto* keyPress = event->getIf<sf::Event::KeyPressed>()) {
 				if (keyPress->code == sf::Keyboard::Key::Escape) {
-					return;
+					if (info == trayInfo::Show) {
+						info = trayInfo::None;
+						currentTray = trayShow::None;
+					}
+					else {
+						return;
+					}
 				}
 			}
 
-			if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
-				
-				int redirect = inputOptions(*mouseEvent);				
-				if (redirect!= 0) {
-					return;
+			if (const auto* mouseClick = event->getIf<sf::Event::MouseButtonPressed>()) {
+				if (mouseClick->button == Mouse::Button::Left){
+					Vector2f mousePos(static_cast<float>(mouseClick->position.x),
+						static_cast<float>(mouseClick->position.y));
+
+					if (info == trayInfo::Show) {
+						info = trayInfo::None;
+						currentTray = trayShow::None;
+					}
+					else {
+						if (instructionSprite.getGlobalBounds().contains(mousePos)) {
+							info = trayInfo::Show;
+							currentTray = trayShow::Help;
+						}
+						else if (creditSprite.getGlobalBounds().contains(mousePos)) {
+							info = trayInfo::Show;
+							currentTray = trayShow::Credit;
+						}
+						else {
+							if (inputOptions(*mouseClick) == 1) {
+								return;
+							}
+						}
+					}
 				}
 			}
+
+
 
 		}
 		changeSettings();
@@ -311,12 +346,22 @@ void optionsMenu::render() {
 	window.draw(soundrightArrowSprite);
 	window.draw(musicleftArrowSprite);
 	window.draw(musicrightArrowSprite);
+	window.draw(creditSprite);
+	window.draw(instructionSprite);
 
 
 	for (int i = 0; i < rectangleVolume; i++) {
 
 		window.draw(*soundRectangle[i]);
 		window.draw(*musicRectangle[i]);
+	}
+
+	if (info == trayInfo::Show) {
+		window.draw(bigTraySprite);
+
+		if (currentTray == trayShow::Credit) {
+
+		}
 	}
 
 	window.display();
