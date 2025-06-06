@@ -86,6 +86,26 @@ void mainMenu::loadAssets() {
 			<< logoTexture.getSize().x << "x" << logoTexture.getSize().y << endl;
 	}
 
+	// Load background music
+	if (!menuBGM.openFromFile("Sprites/soundfx/menuBGM.wav")) {
+		cerr << "Error loading menu background music" << endl;
+	}
+	else {
+		menuBGM.setLooping(true);
+		menuBGM.setVolume(40); // Adjust as needed
+		if (!isMuted) menuBGM.play();
+	}
+
+
+	// Load hover sound effect
+	if (!hoverBuffer.loadFromFile("Sprites/soundfx/hover.wav")) {
+		cerr << "Error loading hover sound" << endl;
+	}
+	hoverSound = new Sound(hoverBuffer);
+	hoverSound->setBuffer(hoverBuffer);
+	hoverSound->setVolume(80); // Adjust volume as needed
+
+
 	menubgSprite.setTexture(menubgTexture, true);
 	logoSprite.setTexture(logoTexture, true);
 	playButtonSprite.setTexture(playButtonTexture, true);
@@ -304,6 +324,19 @@ void mainMenu::updateHover() {
 
 	const float hoverScaleFactor = 1.1f;
 
+	// Hover sound effect mechanics
+	bool overPlay = playButtonSprite.getGlobalBounds().contains(mousePos);
+	bool overOptions = optionsButtonSprite.getGlobalBounds().contains(mousePos);
+	bool overQuit = quitButtonSprite.getGlobalBounds().contains(mousePos);
+
+	// Play hover sound when mouse enters a button
+	if ((overPlay && !wasOverPlay) || (overOptions && !wasOverOptions) || (overQuit && !wasOverQuit)) {
+		if (hoverSound) hoverSound->play();
+	}
+	wasOverPlay = overPlay;
+	wasOverOptions = overOptions;
+	wasOverQuit = overQuit;
+
 
 	if (playButtonSprite.getGlobalBounds().contains(mousePos)) {
 		playButtonSprite.setScale(playButtonInitialScale * hoverScaleFactor);
@@ -369,6 +402,13 @@ void mainMenu::render() {
 void mainMenu::toggleMute() {
 	isMuted = !isMuted;
 	sf::Listener::setGlobalVolume(isMuted ? 0.f : 100.f); // Toggle volume
+	cout << (isMuted ? "Sound muted." : "Sound unmuted.") << endl;
+	if (isMuted) {
+		menuBGM.pause();
+	}
+	else {
+		menuBGM.play();
+	}
 	cout << (isMuted ? "Sound muted." : "Sound unmuted.") << endl;
 }
 
