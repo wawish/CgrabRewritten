@@ -187,44 +187,6 @@ void mainMenu::setupMenu() {
 	optionsButtonInitialScale = optionsButtonSprite.getScale();
 	quitButtonInitialScale = quitButtonSprite.getScale();
 
-
-	cout << "\n--- In-Depth Debug Info ---" << endl;
-	cout << "Window Size: " << window.getSize().x << "x" << window.getSize().y << endl;
-
-	// --- Check the Texture Directly ---
-	cout << "logoTexture Size: (" << logoTexture.getSize().x << ", " << logoTexture.getSize().y << ")" << endl;
-
-	// --- Check the Sprite's Internal State ---
-	sf::IntRect texRect = logoSprite.getTextureRect();
-	sf::FloatRect localBounds = logoSprite.getLocalBounds();
-
-	cout << "Logo Sprite Texture Rect: "
-		<< "(L:" << texRect.position.x << ", T:" << texRect.position.y
-		<< ", W:" << texRect.size.x << ", H:" << texRect.size.y << ")" << endl;
-
-	cout << "Logo Sprite Local Bounds: "
-		<< "(L:" << localBounds.position.x << ", T:" << localBounds.position.y
-		<< ", W:" << localBounds.size.x << ", H:" << localBounds.size.y << ")" << endl;
-
-	cout << "Logo Sprite Scale: (" << logoSprite.getScale().x << ", "
-		<< logoSprite.getScale().y << ")" << endl;
-
-	cout << "Logo Sprite Position: (" << logoSprite.getPosition().x << ", "
-		<< logoSprite.getPosition().y << ")" << endl;
-
-	cout << "Logo Sprite Origin: (" << logoSprite.getOrigin().x << ", "
-		<< logoSprite.getOrigin().y << ")" << endl;
-
-	// --- Check the Final Global Bounds ---
-	sf::FloatRect globalBounds = logoSprite.getGlobalBounds();
-	cout << "Logo Sprite Global Bounds (Final): "
-		<< "(L:" << globalBounds.position.x << ", T:" << globalBounds.position.y
-		<< ", W:" << globalBounds.size.x << ", H:" << globalBounds.size.y << ")" << endl;
-
-
-
-	cout << "--------------------------------\n" << endl;
-
 }
 
 
