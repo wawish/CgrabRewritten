@@ -58,7 +58,7 @@ private:
 
 	void toggleMute();
 
-	Music menuBGM;
+	
 	SoundBuffer hoverBuffer;
 	Sound* hoverSound;
 	SoundBuffer clickBuffer;
@@ -69,5 +69,3 @@ private:
 	bool wasOverSpeaker = false;
 };
 
-// Helper function declaration
-//static void positionText(Text& text, float x, float y, bool centered = true);
