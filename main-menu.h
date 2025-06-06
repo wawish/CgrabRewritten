@@ -61,6 +61,8 @@ private:
 	Music menuBGM;
 	SoundBuffer hoverBuffer;
 	Sound* hoverSound;
+	SoundBuffer clickBuffer;
+	Sound* clickSound = nullptr;
 	bool wasOverPlay = false;
 	bool wasOverOptions = false;
 	bool wasOverQuit = false;
