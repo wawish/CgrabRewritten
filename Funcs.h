@@ -33,6 +33,8 @@ public:
 	Sound* hoverSound;
 	bool wasOverRetry;
 	bool wasOverQuit;
+	SoundBuffer clickBuffer;
+	Sound* clickSound;
 };
 
 class gameWindow

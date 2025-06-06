@@ -698,6 +698,15 @@ gameOver::gameOver()
     wasOverRetry = false;
     wasOverQuit = false;
 
+    // CLICK SFX
+    if (!clickBuffer.loadFromFile("Sprites/soundfx/click.wav")) {
+        std::cout << "ERROR LOADING CLICK SOUND" << std::endl;
+    }
+    clickSound = new Sound(clickBuffer);
+    clickSound->setBuffer(clickBuffer);
+    clickSound->setVolume(80); // Adjust as needed
+
+
     float trayWidth = 750.f;
     float trayHeight = 450.f;
     float trayX = (1920.f - trayWidth) / 2.f;
@@ -762,15 +771,18 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
             auto mouseClick = Vector2f(Mouse::getPosition(*l));
             if (spriteRetryButton->getGlobalBounds().contains(mouseClick))
             {
+				clickSound->play(); // Play click sound
                 engine->reset();
             }
             if (spriteQuitButton->getGlobalBounds().contains(mouseClick))
             {
+				clickSound->play(); // Play click sound
                 l->close();
             }
         }
     }
 
+    // HOVER SFX
     Vector2f mousePos = Vector2f(Mouse::getPosition(*l));
     bool overRetry = spriteRetryButton->getGlobalBounds().contains(mousePos);
     bool overQuit = spriteQuitButton->getGlobalBounds().contains(mousePos);
