@@ -143,11 +143,13 @@
     <ClCompile Include="Funcs.cpp" />
     <ClCompile Include="main-menu.cpp" />
     <ClCompile Include="mainGame.cpp" />
+    <ClCompile Include="options-menu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Funcs.h" />
     <ClInclude Include="main-menu.h" />
     <ClInclude Include="mainGame.h" />
+    <ClInclude Include="options-menu.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

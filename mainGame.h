@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 struct gameChoice {
 
@@ -16,6 +17,7 @@ private:
 	sf::RenderWindow gameWindow;
 	int selectChoice;
 	sf::Font gameFont;
+	sf::Music menuBGM;
 
 public:
 
