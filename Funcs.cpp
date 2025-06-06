@@ -672,13 +672,31 @@ gameOver::gameOver()
         cout << "ERROR LOADING FONT" << endl;
     }
     
-
+    // GAMEOVER SFX
     if (!loseBuffer.loadFromFile("Sprites/soundfx/lose.wav")) {
         std::cout << "ERROR LOADING LOSE SOUND" << std::endl;
     }
     loseSound = new Sound(loseBuffer);
     loseSound->setBuffer(loseBuffer);
     loseSound->setVolume(100); // Adjust as needed
+
+	// HOVER SFX
+    if (!hoverRetryBuffer.loadFromFile("Sprites/soundfx/hoverRetry.wav")) {
+        std::cout << "ERROR LOADING hoverRetry SOUND" << std::endl;
+    }
+    hoverRetrySound = new Sound(hoverRetryBuffer);
+    hoverRetrySound->setBuffer(hoverRetryBuffer);
+    hoverRetrySound->setVolume(80);
+
+    if (!hoverQuitBuffer.loadFromFile("Sprites/soundfx/hoverQuit.wav")) {
+        std::cout << "ERROR LOADING hoverQuit SOUND" << std::endl;
+    }
+    hoverQuitSound = new Sound(hoverQuitBuffer);
+    hoverQuitSound->setBuffer(hoverQuitBuffer);
+    hoverQuitSound->setVolume(80);
+
+    wasOverRetry = false;
+    wasOverQuit = false;
 
 
     float trayWidth = 750.f;
@@ -748,6 +766,40 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
                 engine->reset();
             }
             if (spriteQuitButton->getGlobalBounds().contains(mouseClick))
+            {
+                l->close();
+            }
+        }
+    }
+
+    Vector2f mousePos = Vector2f(Mouse::getPosition(*l));
+    bool overRetry = spriteRetryButton->getGlobalBounds().contains(mousePos);
+    bool overQuit = spriteQuitButton->getGlobalBounds().contains(mousePos);
+
+    // Play hover sound when mouse enters the retry button
+    if (overRetry && !wasOverRetry) {
+        hoverRetrySound->play();
+    }
+    // Play hover sound when mouse enters the quit button
+    if (overQuit && !wasOverQuit) {
+        hoverQuitSound->play();
+    }
+    wasOverRetry = overRetry;
+    wasOverQuit = overQuit;
+
+    while (auto event = l->pollEvent())
+    {
+        if (event->is<Event::Closed>())
+        {
+            l->close();
+        }
+        if (event->is<Event::MouseButtonPressed>())
+        {
+            if (overRetry)
+            {
+                engine->reset();
+            }
+            if (overQuit)
             {
                 l->close();
             }

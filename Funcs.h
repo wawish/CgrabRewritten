@@ -29,6 +29,12 @@ public:
 	Text *lostHeader;
 	SoundBuffer loseBuffer;
 	Sound* loseSound;
+	SoundBuffer hoverRetryBuffer;
+	Sound* hoverRetrySound;
+	SoundBuffer hoverQuitBuffer;
+	Sound* hoverQuitSound;
+	bool wasOverRetry;
+	bool wasOverQuit;
 };
 
 class gameWindow
