@@ -11,6 +11,89 @@ void randomNumber()
     srand(static_cast<unsigned int>(time(nullptr)));
 }
 
+comicSlideShow::comicSlideShow(RenderWindow* l)
+{
+    if(!frame1.loadFromFile("Sprites/comic/1.png") || !frame2.loadFromFile("Sprites/comic/2.png") || !frame3.loadFromFile("Sprites/comic/3.png"))
+    {
+        cout << "ERROR LOADING TEXTURE" << endl;
+    }
+}
+
+void comicSlideShow::draw(RenderWindow* l)
+{
+    // Prepare slideshow data
+    Texture* frames[] = { &frame1, &frame2, &frame3 };
+    const int numFrames = 3;
+    const float fadeInTime = 1.0f;
+    const float holdTime = 3.0f;
+    const float fadeOutTime = 1.0f;
+    const float totalTime = fadeInTime + holdTime + fadeOutTime;
+
+    int frameIndex = 0;
+    bool running = true;
+    Clock clock;
+
+    // Create sprite for current frame
+    if (currentframe) delete currentframe;
+    currentframe = new Sprite(*frames[frameIndex]);
+
+    while (l->isOpen() && running)
+    {
+        // Handle events (close window or skip with Space)
+        while (const std::optional<sf::Event> event = l->pollEvent())
+        {
+            if (event->is<sf::Event::Closed>())
+            {
+                l->close();
+                return;
+            }
+            if (const auto* pressedKey = event->getIf<sf::Event::KeyPressed>())
+            {
+                if (pressedKey->code == sf::Keyboard::Key::Space)
+                {
+                    running = false;
+                }
+            }
+        }
+
+        float elapsed = clock.getElapsedTime().asSeconds();
+        float alpha = 0.f;
+
+        if (elapsed < fadeInTime)
+        {
+            alpha = 255.f * (elapsed / fadeInTime);
+        }
+        else if (elapsed < fadeInTime + holdTime)
+        {
+            alpha = 255.f;
+        }
+        else if (elapsed < totalTime)
+        {
+            alpha = 255.f * (1.f - (elapsed - fadeInTime - holdTime) / fadeOutTime);
+        }
+        else
+        {
+            // Next frame or end
+            frameIndex++;
+            if (frameIndex >= numFrames)
+            {
+                running = false;
+                continue;
+            }
+            clock.restart();
+            if (currentframe) delete currentframe;
+            currentframe = new Sprite(*frames[frameIndex]);
+            continue;
+        }
+
+        currentframe->setColor(sf::Color(255, 255, 255, static_cast<uint8_t>(alpha)));
+
+        l->clear();
+        l->draw(*currentframe);
+        l->display();
+    }
+}
+
 gameEngine::gameEngine(RenderWindow* window)
     : window(window), player(window), state(GameState::Playing)
 {

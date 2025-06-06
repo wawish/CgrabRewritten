@@ -19,6 +19,15 @@ using namespace std;
 
 class gameEngine;
 
+class comicSlideShow
+{
+public:
+	comicSlideShow(RenderWindow*);
+	Texture frame1, frame2, frame3;
+	Sprite *currentframe;
+	void draw(RenderWindow*);
+};
+
 class gameOver
 {
 public:

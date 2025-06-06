@@ -12,6 +12,7 @@ Game::Game() :
 {
 	selectChoice = gameChoice::showMenu;
 	gameWindow.setFramerateLimit(60);
+	gameWindow.setVerticalSyncEnabled(true);
 
 	if (!gameFont.openFromFile("Sprites/Fonts/ka1.ttf")) {
 		cerr << "Error loading font" << endl;
@@ -37,6 +38,8 @@ void Game::run() {
 			}
 		}
 		else if (selectChoice == gameChoice::playGame) {
+			comicSlideShow show(&gameWindow);
+			show.draw(&gameWindow);
 			gameEngine gamingRun(&gameWindow);
 			gamingRun.run();
 
