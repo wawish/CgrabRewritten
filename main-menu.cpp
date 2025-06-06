@@ -96,12 +96,12 @@ void mainMenu::loadAssets() {
 
 	//logoSprite.setTextureRect(IntRect({ 0, 0 }, { 900, 432 }));
 
-	logoSprite.setScale(Vector2f(0.56875f, 0.56875f));
-	playButtonSprite.setScale(Vector2f(0.36875f, 0.36875f));
-	optionsButtonSprite.setScale(Vector2f(0.36875f, 0.36875f));
-	quitButtonSprite.setScale(Vector2f(0.46875f, 0.46875f));
-	speakerOnSprite.setScale(Vector2f(0.26875f, 0.26875f));
-	speakerOffSprite.setScale(Vector2f(0.26875f, 0.26875f));
+	logoSprite.setScale(Vector2f(1.f, 1.f));
+	playButtonSprite.setScale(Vector2f(1.f, 1.f));
+	optionsButtonSprite.setScale(Vector2f(1.f, 1.f));
+	quitButtonSprite.setScale(Vector2f(1.f, 1.f));
+	speakerOnSprite.setScale(Vector2f(1.f, 1.f));
+	speakerOffSprite.setScale(Vector2f(1.f, 1.f));
 
 
 	/*playButtonSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(playButtonTexture.getSize())));
@@ -159,10 +159,10 @@ void mainMenu::setupMenu() {
 	quitButtonSprite.setOrigin(Vector2f(quitBounds.size.x / 2.0f, quitBounds.size.y / 2.0f));
 	logoSprite.setOrigin(Vector2f(logoBounds.size.x / 2.0f, logoBounds.size.y / 2.0f));
 
-	logoSprite.setPosition(Vector2f(menuPos_x, logoPos_y));
-	playButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y));
-	optionsButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y + menu_SPACING));
-	quitButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y + 2 * menu_SPACING));
+	logoSprite.setPosition(Vector2f(menuPos_x, logoPos_y + 50));
+	playButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y + 150));
+	optionsButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y + menu_SPACING + 150));
+	quitButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y + 2 * menu_SPACING + 150));
 
 	float speakerSpace = 30.f;
 
