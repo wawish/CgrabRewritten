@@ -2,6 +2,7 @@
 #include "main-menu.h"
 #include "Funcs.h"
 #include <iostream>
+#include "options-menu.h"
 
 using namespace std;
 using namespace sf;
@@ -16,6 +17,16 @@ Game::Game() :
 	if (!gameFont.openFromFile("Sprites/Fonts/ka1.ttf")) {
 		cerr << "Error loading font" << endl;
 	}
+
+	if (!menuBGM.openFromFile("Sprites/soundfx/menuBGM.wav")) {
+		cerr << "Error loading BGM Music" << endl;
+	}
+	
+	else {
+		menuBGM.setLooping(true);
+		menuBGM.setVolume(optionsMenu::musicVol);
+		menuBGM.play();
+	}
 	cout << "Game initialized" << endl;
 };
 
@@ -23,10 +34,12 @@ void Game::run() {
 	int choice;
 
 	while (selectChoice != gameChoice::exitGame && gameWindow.isOpen()) {
+		menuBGM.setVolume(optionsMenu::musicVol);
 		if (selectChoice == gameChoice::showMenu) {
 			mainMenu menuScreen(gameWindow);
 			choice = menuScreen.run();
 			if (choice == menuChoices::PLAY) {
+				menuBGM.stop();
 				selectChoice = gameChoice::playGame;
 			}
 			else if (choice == menuChoices::OPTIONS) {
@@ -53,25 +66,16 @@ void Game::run() {
 			selectChoice = gameMechanics.run();*/
 		}
 		else if(selectChoice == gameChoice::showOptions) {
-			
-			while (selectChoice == gameChoice::showOptions && gameWindow.isOpen()) {
-				while (const optional event = gameWindow.pollEvent()) {
-					if (event->is<Event::Closed>()) {
-						
-						selectChoice = gameChoice::exitGame;
-						gameWindow.close();
-					}
+			optionsMenu options(gameWindow, menuBGM);
+			options.run();
 
-					if (const auto* pressedKey = event->getIf<Event::KeyPressed>()) {
-						if (pressedKey->code == Keyboard::Key::Escape) {
-							selectChoice = gameChoice::showMenu;
-						}
-					}
-				}
-				gameWindow.clear(Color(50, 50, 100));
-
-
+			if (gameWindow.isOpen()) {
+				selectChoice = gameChoice::showMenu;
 			}
+			else {
+				selectChoice = gameChoice::exitGame;
+			}
+						
 		}
 		else if (selectChoice == gameChoice::exitGame) {
 			gameWindow.close();

@@ -1,10 +1,14 @@
 #include "options-menu.h"
 #include <iostream>
 
-optionsMenu::optionsMenu(RenderWindow& window) :
+float optionsMenu::soundFX = 80;
+float optionsMenu::musicVol = 80;
+const float globalScale = 0.80f, decrementScale = 0.10f;
+
+optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 
 	window(window),
-
+	menuBGM(BGM),
 	optionsSprite(optionsTexture),
 	displaySprite(displayTexture),
 	instructionSprite(instructionTexture),
@@ -17,12 +21,14 @@ optionsMenu::optionsMenu(RenderWindow& window) :
 	unhighlightRectSprite(unhighlightRectTexture),
 	highlightRectSprite(highlightRectTexture),
 	soundtxtSprite(soundtxtTexture),
-	musictxtSprite(musictxtTexture)
+	musictxtSprite(musictxtTexture),
+	sameBGSprite(sameBGTexture)
 	
 {
 
+	
 
-	if (!optionsTexture.loadFromFile("Sprites/buttons/options.png") ||
+	if (!optionsTexture.loadFromFile("Sprites/buttons/options_button.png") ||
 		//!displayTexture.loadFromFile("Sprites/buttons/display.png") ||
 		!instructionTexture.loadFromFile("Sprites/buttons/instructions.png") ||
 		!creditTexture.loadFromFile("Sprites/buttons/credit.png") ||
@@ -34,28 +40,44 @@ optionsMenu::optionsMenu(RenderWindow& window) :
 		!unhighlightRectTexture.loadFromFile("Sprites/buttons/unhighlight.png") ||
 		!soundtxtTexture.loadFromFile("Sprites/buttons/soundtxt.png") ||
 		!musictxtTexture.loadFromFile("Sprites/buttons/musictxt.png") ||
-		!highlightRectTexture.loadFromFile("Sprites/buttons/highlight.png")) {
+		!highlightRectTexture.loadFromFile("Sprites/buttons/highlight.png") ||
+		!sameBGTexture.loadFromFile("Sprites/bg/menubg.png")) {
 		cerr << "Error loading textures [OPTIONS]" << endl;
 	}
+
+	backSprite.setScale(Vector2f(globalScale, globalScale));
+	optionsSprite.setScale(Vector2f(globalScale, globalScale));
+
+	soundtxtSprite.setScale(Vector2f(1.4, 1.4));
+	musictxtSprite.setScale(Vector2f(1.4, 1.4));
+
+	soundleftArrowSprite.setScale(Vector2f(globalScale, globalScale));
+	soundrightArrowSprite.setScale(Vector2f(globalScale, globalScale));
+	musicleftArrowSprite.setScale(Vector2f(globalScale, globalScale));
+	musicrightArrowSprite.setScale(Vector2f(globalScale, globalScale));
+	instructionSprite.setScale(Vector2f(globalScale, globalScale));
+	creditSprite.setScale(Vector2f(globalScale, globalScale));
+
 	float windowWidth = static_cast<float>(window.getSize().x);
 	float windowHeight = static_cast<float>(window.getSize().y);
 
 	float middle_x = windowWidth / 2.0f;
 
-	optionsSprite.setTexture(optionsTexture);
+	optionsSprite.setTexture(optionsTexture, true);
 	//displaySprite.setTexture(displayTexture);
-	instructionSprite.setTexture(instructionTexture);
-	creditSprite.setTexture(creditTexture);
-	backSprite.setTexture(backTexture);
-	soundleftArrowSprite.setTexture(soundleftArrowTexture);
-	soundrightArrowSprite.setTexture(soundrightArrowTexture);
-	musicleftArrowSprite.setTexture(musicleftArrowTexture);
-	musicrightArrowSprite.setTexture(musicrightArrowTexture);
+	instructionSprite.setTexture(instructionTexture, true);
+	creditSprite.setTexture(creditTexture, true);
+	backSprite.setTexture(backTexture, true);
+	soundleftArrowSprite.setTexture(soundleftArrowTexture, true);
+	soundrightArrowSprite.setTexture(soundrightArrowTexture, true);
+	musicleftArrowSprite.setTexture(musicleftArrowTexture, true);
+	musicrightArrowSprite.setTexture(musicrightArrowTexture, true);
 
-	unhighlightRectSprite.setTexture(unhighlightRectTexture);
-	highlightRectSprite.setTexture(highlightRectTexture);
-	soundtxtSprite.setTexture(soundtxtTexture);
-	musictxtSprite.setTexture(musictxtTexture);
+	unhighlightRectSprite.setTexture(unhighlightRectTexture, true);
+	highlightRectSprite.setTexture(highlightRectTexture, true);
+	soundtxtSprite.setTexture(soundtxtTexture, true);
+	musictxtSprite.setTexture(musictxtTexture, true);
+	sameBGSprite.setTexture(sameBGTexture, true);
 
 	soundRectangle[0] = new Sprite(unhighlightRectTexture);
 	soundRectangle[1] = new Sprite(unhighlightRectTexture);
@@ -96,8 +118,8 @@ optionsMenu::optionsMenu(RenderWindow& window) :
 
 
 	float rectangleSize_x = highlightRectTexture.getSize().x;
-	float rectanglePos_x = 125.f + 70.f;
-	float rectangleSpace_x = rectangleSize_x + 15.f;
+	float rectanglePos_x = 145.f + 70.f;
+	float rectangleSpace_x = rectangleSize_x - 20.0f;
 
 
 
@@ -106,6 +128,7 @@ optionsMenu::optionsMenu(RenderWindow& window) :
 	for (int i = 0; i < rectangleVolume; i++) {
 		
 		soundRectangle[i]->setPosition(Vector2f(rectanglePos_x, 230.f + 70.f));
+		soundRectangle[i]->setScale(Vector2f(globalScale-decrementScale, globalScale - decrementScale));
 
 		rectanglePos_x += rectangleSpace_x;
 	}
@@ -117,11 +140,12 @@ optionsMenu::optionsMenu(RenderWindow& window) :
 
 	//MUSIC SPRITE
 
-	rectanglePos_x = 125.f + 70.f;
+	rectanglePos_x = 145.f + 70.f;
 
 	for (int i = 0; i < rectangleVolume; i++) {
 		
 		musicRectangle[i]->setPosition(Vector2f(rectanglePos_x, 430.f + 70.f));
+		musicRectangle[i]->setScale(Vector2f(globalScale - decrementScale, globalScale - decrementScale));
 
 		rectanglePos_x += rectangleSpace_x;
 	}
@@ -131,7 +155,11 @@ optionsMenu::optionsMenu(RenderWindow& window) :
 	musicleftArrowSprite.setPosition(Vector2f(125.f, 500.f));
 	musicrightArrowSprite.setPosition(Vector2f(musicRightArrow_x, 430.f + 70.f));
 
+
+	instructionSprite.setOrigin(Vector2f(instructionSprite.getLocalBounds().size.x, 0.f));
 	instructionSprite.setPosition(Vector2f(50.f, 40.f));
+
+	creditSprite.setOrigin(Vector2f(creditSprite.getLocalBounds().size.x, 0.f));
 	creditSprite.setPosition(Vector2f(50.f, 40.f));
 
 
@@ -147,14 +175,7 @@ optionsMenu::~optionsMenu() {
 }
 	
 
-void optionsMenu::render() {
 
-	for (int i = 0; i < rectangleVolume; i++) {
-
-		window.draw(*soundRectangle[i]);
-		window.draw(*musicRectangle[i]);
-	}
-}
 
 int optionsMenu::inputOptions(const Event::MouseButtonPressed& mouseEvent) {
 
@@ -172,32 +193,36 @@ int optionsMenu::inputOptions(const Event::MouseButtonPressed& mouseEvent) {
 
 		if (soundleftArrowSprite.getGlobalBounds().contains(mousePos)) {
 
-			float minusVol = Listener::getGlobalVolume() - volumeIncrement;
-			if (minusVol < 0) {
-				minusVol = 0;
+			soundFX -= volumeIncrement;
+			if (soundFX < 0) {
+				soundFX = 0;
 			}
-			Listener::setGlobalVolume(minusVol);
 
 		}
 		else if (soundrightArrowSprite.getGlobalBounds().contains(mousePos)) {
 
-			float addVol = Listener::getGlobalVolume() + volumeIncrement;
-			if (addVol > 100) {
-				addVol = 100;
+			soundFX += volumeIncrement;
+			if (soundFX > 100) {
+				soundFX = 100;
 			}
-			Listener::setGlobalVolume(addVol);
 
 		}
 		else if (musicleftArrowSprite.getGlobalBounds().contains(mousePos)) {
 
-			musicDB -= volumeIncrement;
-			if (musicDB < 0) musicDB = 0;
+			musicVol -= volumeIncrement;
+			if (musicVol < 0) {
+				musicVol = 0;
+			}
+			menuBGM.setVolume(musicVol);
 
 		}
 		else if (musicrightArrowSprite.getGlobalBounds().contains(mousePos)) {
 
-			musicDB += volumeIncrement;
-			if (musicDB > 100) musicDB = 100;
+			musicVol += volumeIncrement;
+			if (musicVol > 100) {
+				musicVol = 100;
+			} 
+			menuBGM.setVolume(musicVol);
 
 		}
 
@@ -207,6 +232,94 @@ int optionsMenu::inputOptions(const Event::MouseButtonPressed& mouseEvent) {
 	return 0;
 
 
+}
+
+void optionsMenu::run() {
+	Clock clock;
+	while (window.isOpen()) {
+		float deltaTime = clock.restart().asSeconds();
+		while (const optional event = window.pollEvent()) {
+			if (event->is<Event::Closed>()) {
+				window.close();
+				return;
+			}
+			
+			if (const auto* keyPress = event->getIf<sf::Event::KeyPressed>()) {
+				if (keyPress->code == sf::Keyboard::Key::Escape) {
+					return;
+				}
+			}
+
+			if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
+				
+				int redirect = inputOptions(*mouseEvent);				
+				if (redirect!= 0) {
+					return;
+				}
+			}
+
+		}
+		changeSettings();
+		render();
+	}
+	return;
+
+	
+}
+
+void optionsMenu::changeSettings() {
+
+	int highlightedSound = (soundFX / 10.f);
+	int highlightedMusic = (musicVol / 10.f);
+
+	for (int i = 0; i < rectangleVolume; i++) {
+		if (i < highlightedSound) {
+			soundRectangle[i]->setTexture(highlightRectTexture);
+			
+		}
+		else {
+			soundRectangle[i]->setTexture(unhighlightRectTexture);
+			
+		}
+	}
+
+	
+
+	for (int i = 0; i < rectangleVolume; i++) {
+		if (i < highlightedMusic) {
+			musicRectangle[i]->setTexture(highlightRectTexture);
+			
+		}
+		else {
+			musicRectangle[i]->setTexture(unhighlightRectTexture);
+			
+		}
+	}
+
+}
+
+void optionsMenu::render() {
+
+	window.clear();
+	window.draw(sameBGSprite);
+
+	window.draw(backSprite);
+	window.draw(optionsSprite);
+	window.draw(soundtxtSprite);
+	window.draw(musictxtSprite);
+	window.draw(soundleftArrowSprite);
+	window.draw(soundrightArrowSprite);
+	window.draw(musicleftArrowSprite);
+	window.draw(musicrightArrowSprite);
+
+
+	for (int i = 0; i < rectangleVolume; i++) {
+
+		window.draw(*soundRectangle[i]);
+		window.draw(*musicRectangle[i]);
+	}
+
+	window.display();
 }
 
 	

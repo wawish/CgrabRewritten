@@ -1,4 +1,5 @@
 #include "main-menu.h"
+#include "options-menu.h"
 #include <iostream>
 #include <string>
 
@@ -78,24 +79,13 @@ void mainMenu::loadAssets() {
 			<< logoTexture.getSize().x << "x" << logoTexture.getSize().y << endl;
 	}
 
-	// Load background music
-	if (!menuBGM.openFromFile("Sprites/soundfx/menuBGM.wav")) {
-		cerr << "Error loading menu background music" << endl;
-	}
-	else {
-		menuBGM.setLooping(true);
-		menuBGM.setVolume(40); // Adjust as needed
-		if (!isMuted) menuBGM.play();
-	}
-
-
 	// Load hover sound effect
 	if (!hoverBuffer.loadFromFile("Sprites/soundfx/hover.wav")) {
 		cerr << "Error loading hover sound" << endl;
 	}
 	hoverSound = new Sound(hoverBuffer);
 	hoverSound->setBuffer(hoverBuffer);
-	hoverSound->setVolume(80); // Adjust volume as needed
+	hoverSound->setVolume(optionsMenu::soundFX); // Adjust volume as needed
 
 	// Load click sound effect
 	if (!clickBuffer.loadFromFile("Sprites/soundfx/click.wav")) {
@@ -103,7 +93,7 @@ void mainMenu::loadAssets() {
 	}
 	clickSound = new Sound(clickBuffer);
 	clickSound->setBuffer(clickBuffer);
-	clickSound->setVolume(80); // Adjust volume as needed
+	clickSound->setVolume(optionsMenu::soundFX); // Adjust volume as needed
 
 
 	menubgSprite.setTexture(menubgTexture, true);
@@ -240,7 +230,7 @@ void mainMenu::setupMenu() {
 
 
 int mainMenu::run() {
-    sf::Clock clock;
+    Clock clock;
     while (window.isOpen()) {
         float deltaTime = clock.restart().asSeconds();
         while (const optional event = window.pollEvent()) {
@@ -410,13 +400,12 @@ void mainMenu::toggleMute() {
 	if (clickSound) clickSound->play();
 
 	isMuted = !isMuted;
-	sf::Listener::setGlobalVolume(isMuted ? 0.f : 100.f); // Toggle volume
-	cout << (isMuted ? "Sound muted." : "Sound unmuted.") << endl;
+	
 	if (isMuted) {
-		menuBGM.pause();
+		sf::Listener::setGlobalVolume(0.f);
 	}
 	else {
-		menuBGM.play();
+		sf::Listener::setGlobalVolume(100.f);
 	}
 	cout << (isMuted ? "Sound muted." : "Sound unmuted.") << endl;
 }

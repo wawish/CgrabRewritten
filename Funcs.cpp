@@ -2,6 +2,7 @@
 #include <random>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include "options-menu.h"
 
 using namespace sf;
 using namespace std;
@@ -37,7 +38,7 @@ gameEngine::gameEngine(RenderWindow* window)
     else {
         //bgmMusic.setLoop(true);
         playBGM.setLooping(true);
-        playBGM.setVolume(40); // Volume control
+        playBGM.setVolume(optionsMenu::musicVol); // Volume control
         playBGM.play();
     }
 }
@@ -516,7 +517,7 @@ Money::Money()
     }
     coinSounds = new Sound(takeCoin);
     coinSounds->setBuffer(takeCoin);
-    coinSounds->setVolume(50);
+    coinSounds->setVolume(optionsMenu::soundFX);
     coinFallspeed = 250.f;
     frameDuration = 0.15f;
     frameTimer = 0.f;
@@ -574,7 +575,7 @@ Bomb::Bomb()
     }
     bombSounds = new Sound(takeBomb);
     bombSounds->setBuffer(takeBomb);
-    bombSounds->setVolume(50);
+    bombSounds->setVolume(optionsMenu::soundFX);
     bombFallspeed = 250.f;
     bombAcceleration = 1.f;
     frameDuration = 0.4f;
@@ -648,7 +649,7 @@ Powerups::Powerups()
     }
     powerupSounds = new Sound(powerupBuffer);
     powerupSounds->setBuffer(powerupBuffer);
-    powerupSounds->setVolume(100); // Adjust as needed
+    powerupSounds->setVolume(optionsMenu::soundFX); // Adjust as needed
 }
 
 void Powerups::respawnPowerup()
@@ -709,7 +710,7 @@ gameOver::gameOver()
     }
     loseSound = new Sound(loseBuffer);
     loseSound->setBuffer(loseBuffer);
-    loseSound->setVolume(100); // Adjust as needed
+    loseSound->setVolume(optionsMenu::soundFX); // Adjust as needed
 
 	// HOVER SFX
     if (!hoverBuffer.loadFromFile("Sprites/soundfx/hover.wav")) {
@@ -717,7 +718,7 @@ gameOver::gameOver()
     }
     hoverSound = new Sound(hoverBuffer);
     hoverSound->setBuffer(hoverBuffer);
-    hoverSound->setVolume(80);
+    hoverSound->setVolume(optionsMenu::soundFX);
 
     wasOverRetry = false;
     wasOverQuit = false;
@@ -728,7 +729,7 @@ gameOver::gameOver()
     }
     clickSound = new Sound(clickBuffer);
     clickSound->setBuffer(clickBuffer);
-    clickSound->setVolume(80); // Adjust as needed
+    clickSound->setVolume(optionsMenu::soundFX); // Adjust as needed
 
 
     float trayWidth = 750.f;

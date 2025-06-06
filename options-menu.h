@@ -10,11 +10,13 @@ using namespace std;
 class optionsMenu {
 	public:	
 		
-		optionsMenu(RenderWindow& window);
+		optionsMenu(RenderWindow& window, Music& BGM);
 		~optionsMenu();
 
 		void run();
-		float musicDB = 100.f;
+		
+		static float soundFX;
+		static float musicVol;
 
 	private:
 
@@ -27,9 +29,11 @@ class optionsMenu {
 
 		Texture optionsTexture, displayTexture, instructionTexture, creditTexture, backTexture;
 		Texture soundleftArrowTexture, soundrightArrowTexture, musicleftArrowTexture, musicrightArrowTexture, unhighlightRectTexture, highlightRectTexture, musictxtTexture, soundtxtTexture;
+		Texture sameBGTexture;
 
 		Sprite optionsSprite, displaySprite, instructionSprite, creditSprite, backSprite;
 		Sprite soundleftArrowSprite, soundrightArrowSprite, musicleftArrowSprite, musicrightArrowSprite, unhighlightRectSprite, highlightRectSprite, musictxtSprite, soundtxtSprite;
+		Sprite sameBGSprite;
 
 		Vector2f optionsVector, displayVector, instructionVector, creditVector, backVector;
 
@@ -37,6 +41,8 @@ class optionsMenu {
 
 		Sprite* soundRectangle[rectangleVolume];
 		Sprite* musicRectangle[rectangleVolume];
+
+		Music& menuBGM;
 
 
 };
