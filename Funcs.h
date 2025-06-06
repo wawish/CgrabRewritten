@@ -1,9 +1,11 @@
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFMl/System.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
+#include <random>
 
 #define PLAY_WIDTH 1280
 #define PLAY_HEIGHT 720
@@ -24,18 +26,19 @@ public:
 	Texture textureOverTray, textureQuitButton, textureRetryButton;
 	Sprite* spriteOverTray, *spriteQuitButton, *spriteRetryButton;
 	void draw(RenderWindow* l);
-	void checkEvent(RenderWindow* l, gameEngine*);
+
+	void checkEvent(RenderWindow* l, gameEngine* engine);
+
 	Font gameoverFont;
 	Text *lostHeader;
 };
 
 class gameWindow
 {
-
 public:
 	RenderWindow* window;
-	gameWindow();
-	~gameWindow();	
+	gameWindow(RenderWindow* window);
+	~gameWindow();
 	Texture texturebg;
 	Sprite* spritebg;
 	Font gameFont;
@@ -143,7 +146,8 @@ class gameEngine
 public:
 	enum class GameState { Playing, GameOver, Paused };
 	GameState state = GameState::Playing;
-	gameEngine();
+
+	explicit gameEngine(RenderWindow* window);
 	static const int MAX_COINS = 5;
 	static const int MAX_BOMBS = 3;
 	static const int MAX_POWERUPS = 2;
@@ -155,17 +159,16 @@ public:
 	Bomb bomb[MAX_BOMBS];
 	Powerups power[MAX_POWERUPS];
 	String status;
-	int activeCoins;
-	int activeBombs;
-	int activePowerups;
-	int lastcoinThreshold;
-	int lastbombThreshold;
-	int lastpowerThreshold;
-	bool bombsSlowed;
-	float slowBombTimer;
-	float bombSlowFactor;
+	int activeCoins = 0;
+	int activeBombs = 0;
+	int activePowerups = 0;
+	int lastcoinThreshold = 0;
+	int lastbombThreshold = 0;
+	int lastpowerThreshold = 0;
+	bool bombsSlowed = false;
+	float slowBombTimer = 0.f;
+	float bombSlowFactor = 0.5f;
 
-	
 	void run();
 	void updatetext();
 	void spawnbombs(float);

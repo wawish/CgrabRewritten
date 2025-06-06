@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Funcs.h"
 #include <random>
+#include "mainGame.h"
 
 
 using namespace sf;
@@ -12,7 +13,8 @@ using namespace std;
 int main()
 {
 
-    gameEngine engine;
-    engine.run();
+    Game startGame;
+
+    startGame.run();
     return 0;
 }
