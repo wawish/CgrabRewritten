@@ -30,8 +30,9 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 	speakerOnTexture(),
 	speakerOffTexture(),
 	logoTexture(),
+	menubgTexture(),
 
-
+	menubgSprite(menubgTexture),
 	playButtonSprite(playButtonTexture),
 	optionsButtonSprite(optionsButtonTexture),
 	quitButtonSprite(quitButtonTexture),
@@ -42,9 +43,6 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 	playText(font, "Play", 30),
 	optionsText(font, "Options", 30),
 	exitText(font, "Exit", 30)
-
-
-
 
 
 {
@@ -63,6 +61,7 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 
 	setupMenu();
 	sf::Listener::setGlobalVolume(isMuted ? 0.f : 100.f); // Set initial volume based on mute state
+
 }
 
 mainMenu::~mainMenu() {
@@ -71,6 +70,9 @@ mainMenu::~mainMenu() {
 
 void mainMenu::loadAssets() {
 	// Load textures
+	if (!menubgTexture.loadFromFile("Sprites/bg/menubg.png")) {
+		cerr << "Error loading background.png" << endl;
+	}
 	if (!playButtonTexture.loadFromFile("Sprites/buttons/play_button.png") ||
 		!optionsButtonTexture.loadFromFile("Sprites/buttons/options_button.png") ||
 		!quitButtonTexture.loadFromFile("Sprites/buttons/quit_button.png") ||
@@ -84,6 +86,7 @@ void mainMenu::loadAssets() {
 			<< logoTexture.getSize().x << "x" << logoTexture.getSize().y << endl;
 	}
 
+	menubgSprite.setTexture(menubgTexture, true);
 	logoSprite.setTexture(logoTexture, true);
 	playButtonSprite.setTexture(playButtonTexture, true);
 	optionsButtonSprite.setTexture(optionsButtonTexture, true);
@@ -93,12 +96,12 @@ void mainMenu::loadAssets() {
 
 	//logoSprite.setTextureRect(IntRect({ 0, 0 }, { 900, 432 }));
 
-	logoSprite.setScale(Vector2f(0.66875f, 0.56875f));
-	playButtonSprite.setScale(Vector2f(0.46875f, 0.46875f));
-	optionsButtonSprite.setScale(Vector2f(0.46875f, 0.46875f));
-	quitButtonSprite.setScale(Vector2f(0.46875f, 0.46875f));
-	speakerOnSprite.setScale(Vector2f(0.26875f, 0.26875f));
-	speakerOffSprite.setScale(Vector2f(0.26875f, 0.26875f));
+	logoSprite.setScale(Vector2f(1.f, 1.f));
+	playButtonSprite.setScale(Vector2f(1.f, 1.f));
+	optionsButtonSprite.setScale(Vector2f(1.f, 1.f));
+	quitButtonSprite.setScale(Vector2f(1.f, 1.f));
+	speakerOnSprite.setScale(Vector2f(1.f, 1.f));
+	speakerOffSprite.setScale(Vector2f(1.f, 1.f));
 
 
 	/*playButtonSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(playButtonTexture.getSize())));
@@ -156,10 +159,10 @@ void mainMenu::setupMenu() {
 	quitButtonSprite.setOrigin(Vector2f(quitBounds.size.x / 2.0f, quitBounds.size.y / 2.0f));
 	logoSprite.setOrigin(Vector2f(logoBounds.size.x / 2.0f, logoBounds.size.y / 2.0f));
 
-	logoSprite.setPosition(Vector2f(menuPos_x, logoPos_y));
-	playButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y));
-	optionsButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y + menu_SPACING));
-	quitButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y + 2 * menu_SPACING));
+	logoSprite.setPosition(Vector2f(menuPos_x, logoPos_y + 50));
+	playButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y + 150));
+	optionsButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y + menu_SPACING + 150));
+	quitButtonSprite.setPosition(Vector2f(menuPos_x, menu_START_y + 2 * menu_SPACING + 150));
 
 	float speakerSpace = 30.f;
 
@@ -217,43 +220,42 @@ void mainMenu::setupMenu() {
 
 
 int mainMenu::run() {
+    sf::Clock clock;
+    while (window.isOpen()) {
+        float deltaTime = clock.restart().asSeconds();
+        while (const optional event = window.pollEvent()) {
+            if (event->is<Event::Closed>()) {
+                window.close();
+                return menuChoices::EXIT;
+            }
+            if (const auto* mouseEvent = event->getIf<Event::MouseButtonPressed>()) {
+                if (mouseEvent->button == Mouse::Button::Left) {
 
-	while (window.isOpen()) {
-		while (const optional event = window.pollEvent()) {
-			if (event->is<Event::Closed>()) {
-				window.close();
-				return menuChoices::EXIT;
-			}
-			if (const auto* mouseEvent = event->getIf<Event::MouseButtonPressed>()) {
-				if (mouseEvent->button == Mouse::Button::Left) {
+                    Vector2f mousePos(static_cast<float>(mouseEvent->position.x),
+                        static_cast<float>(mouseEvent->position.y));
 
-					Vector2f mousePos(static_cast<float>(mouseEvent->position.x),
-						static_cast<float>(mouseEvent->position.y));
+                    if ((!isMuted && speakerOnSprite.getGlobalBounds().contains(mousePos)) ||
+                        isMuted && speakerOffSprite.getGlobalBounds().contains(mousePos)) {
 
-					if ((!isMuted && speakerOnSprite.getGlobalBounds().contains(mousePos)) ||
-						isMuted && speakerOffSprite.getGlobalBounds().contains(mousePos)) {
+                        toggleMute();
 
-						toggleMute();
+                    }
 
-					}
-
-					else {
-						int redirect = inputMenu(*mouseEvent);
-						if (redirect != 0) {
-							return redirect;
-						}
-
-
-					}
-				}
-			}
-		}
-		updateHover();
-		render();
-	}
+                    else {
+                        int redirect = inputMenu(*mouseEvent);
+                        if (redirect != 0) {
+                            return redirect;
+                        }
 
 
-	return menuChoices::EXIT;
+                    }
+                }
+            }
+        }
+        updateHover();
+        render();
+    }
+    return menuChoices::EXIT;
 }
 
 
@@ -331,38 +333,33 @@ void mainMenu::updateHover() {
 }
 
 void mainMenu::render() {
-
-	window.clear(Color::Black);
-
-
+    window.clear(Color::Black);
+    window.draw(menubgSprite);
 
 
-	window.draw(logoSprite);
-	window.draw(playButtonSprite);
-	window.draw(playText);
+    window.draw(logoSprite);
+    window.draw(playButtonSprite);
+    window.draw(playText);
 
-	window.draw(optionsButtonSprite);
-	window.draw(optionsText);
+    window.draw(optionsButtonSprite);
+    window.draw(optionsText);
 
-	window.draw(quitButtonSprite);
-	window.draw(exitText);
+    window.draw(quitButtonSprite);
+    window.draw(exitText);
 
-	sf::FloatRect textBounds = playText.getGlobalBounds();
-	sf::RectangleShape boundsRect(sf::Vector2f(textBounds.size.x, textBounds.size.y));
-	boundsRect.setPosition(Vector2f(textBounds.position.x, textBounds.position.y));
-	boundsRect.setFillColor(sf::Color(255, 0, 0, 100)); // Semi-transparent red
-	window.draw(boundsRect);
+    sf::FloatRect textBounds = playText.getGlobalBounds();
+    sf::RectangleShape boundsRect(sf::Vector2f(textBounds.size.x, textBounds.size.y));
+    boundsRect.setPosition(Vector2f(textBounds.position.x, textBounds.position.y));
+    boundsRect.setFillColor(sf::Color(255, 0, 0, 100)); // Semi-transparent red
+    window.draw(boundsRect);
 
+    if (isMuted) {
+        window.draw(speakerOffSprite);
+    } else {
+        window.draw(speakerOnSprite);
+    }
 
-	if (isMuted) {
-		window.draw(speakerOffSprite);
-	}
-
-	else {
-		window.draw(speakerOnSprite);
-	}
-
-	window.display();
+    window.display();
 }
 
 void mainMenu::toggleMute() {
@@ -370,3 +367,5 @@ void mainMenu::toggleMute() {
 	sf::Listener::setGlobalVolume(isMuted ? 0.f : 100.f); // Toggle volume
 	cout << (isMuted ? "Sound muted." : "Sound unmuted.") << endl;
 }
+
+

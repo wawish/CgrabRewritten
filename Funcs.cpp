@@ -17,13 +17,27 @@ gameEngine::gameEngine(RenderWindow* window)
     activeCoins = 1; //coins currently onscreen
     activeBombs = 0; //bombs currently onscreen
     activePowerups = 0;
-    lastcoinThreshold = 0; //stores the current threshold for coins
-    lastbombThreshold = 0; //stores the current threshold for bombs
-    lastpowerThreshold = 0;
     activePowerups = 0;
     bombsSlowed = false;
     slowBombTimer = 0.f;
     bombSlowFactor = 0.5f; // Factor to slow bombs
+
+    coinThresholdTimer = 0.f;
+    coinThresholdInterval = 15.f; // Interval for coin threshold in seconds
+    bombThresholdTimer = 0.f;
+    bombThresholdInterval = 25.f; // Interval for bomb threshold in seconds
+    powerupThresholdTimer = 0.f;
+    powerupThresholdInterval = 100.f; // Interval for powerup threshold in seconds
+
+    if (!playBGM.openFromFile("Sprites/soundfx/playBGM.wav")) {
+        std::cout << "ERROR LOADING BACKGROUND MUSIC" << std::endl;
+    }
+    else {
+        //bgmMusic.setLoop(true);
+        playBGM.setLooping(true);
+        playBGM.setVolume(40); // Volume control
+        playBGM.play();
+    }
 }
 
 void gameEngine::clamp()
@@ -84,8 +98,8 @@ void gameEngine::collisionchecker()
     }
     for (int i = 0; i < activePowerups; i++) { //collision checker for bombs
         if (power[i].randomPowerSprite->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
-            coin[i].coinSounds->play();
-            int chosen = rand() % 30 + 1;
+            power[i].powerupSounds->play();
+            int chosen = rand() % 20 + 1;
             
             switch (chosen)
             {
@@ -115,9 +129,13 @@ void gameEngine::collisionchecker()
                     slowBombTimer = 2.f; // Reset timer if already slowed
                 }
                 break;
-            case 7: case 8: case 9: case 10:
+            case 7: case 8: case 9:
                 status = "Increasing Speed...";
                 player.moveSpeed += 25.f;
+                break;
+            case 10:
+                status = "Removing Bombs...";
+                activeBombs = 0;
                 break;
             case 11:
                 cout << player.scoremultiplier + 1 << " Multiplier! " << endl;
@@ -142,7 +160,7 @@ void gameEngine::collisionchecker()
                 break;
             default:
                 cout << "Nothing! (Be happy)" << endl;
-                status = "Nothing! (Be happy)";
+                status = "Nothing! (Be happy)"; // to be removed
                 break;
             }
             power[i].respawnPowerup();
@@ -151,46 +169,53 @@ void gameEngine::collisionchecker()
 
 }
 
-void gameEngine::thresholdchecker()
+void gameEngine::thresholdchecker(float delta)
 {
     clamp();
-    int cointhreshold = player.score / 500; //coin ramp up
-    if (cointhreshold > lastcoinThreshold && activeCoins < 10) {
-        cout << "THRESHOLD REACHED! Amount of Coins: " << activeCoins << " Score: " << player.score << endl;
-        if(activeCoins < MAX_COINS) activeCoins++;
+
+    // COINS
+    coinThresholdTimer += delta;
+    if (coinThresholdTimer >= coinThresholdInterval && activeCoins < MAX_COINS) {
+        cout << "TIME THRESHOLD REACHED! Amount of Coins: " << activeCoins << endl;
+        activeCoins++; 
+    }
+    if (coinThresholdTimer >= coinThresholdInterval)
+    {
         for (int i = 0; i < activeCoins; ++i) {
-            coin[i].coinFallspeed += 25.f;
+            coin[i].coinFallspeed += 50.f;
         }
-        lastcoinThreshold = cointhreshold;
+        coinThresholdTimer = 0.f;
     }
 
-
-    int bombthreshold = player.score / 1000; //bomb ramp up
+    // BOMBS
+    bombThresholdTimer += delta;
     int oldActiveBombs = activeBombs;
-    if (bombthreshold > lastbombThreshold && activeBombs < 25) {
-        cout << "THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
-        if (activeBombs < MAX_BOMBS) activeBombs++;
+    if (bombThresholdTimer >= bombThresholdInterval && activeBombs < MAX_BOMBS) {
+        cout << "TIME THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
+        activeBombs++;
+    }
+    if (bombThresholdTimer >= bombThresholdInterval) {
         for (int i = 0; i < activeBombs; ++i) {
-            bomb[i].bombFallspeed += 25.f;
-            // Only respawn new bombs
+            bomb[i].bombFallspeed += 50.f;
             if (i >= oldActiveBombs) {
                 bomb[i].respawnbomb(0);
             }
         }
-        lastbombThreshold = bombthreshold;
+        bombThresholdTimer = 0.f;
     }
 
-    int powerthreshold = player.score / 1500; //Power ramp up
-    if (powerthreshold > lastpowerThreshold && activePowerups < 5) {
-        cout << "THRESHOLD REACHED! Amount of Powerups: " << activePowerups << endl;
-        if (activePowerups < MAX_POWERUPS) activePowerups++;
+    // POWERUPS
+    powerupThresholdTimer += delta;
+    if (powerupThresholdTimer >= powerupThresholdInterval && activePowerups < MAX_POWERUPS) {
+        cout << "TIME THRESHOLD REACHED! Amount of Powerups: " << activePowerups << endl;
+        activePowerups++;
+    }
+    if (powerupThresholdTimer >= powerupThresholdInterval) {
         for (int i = 0; i < activePowerups; ++i) {
-            power[i].powerupFallspeed += 25.f;
+            power[i].powerupFallspeed += 50.f;
         }
-        lastpowerThreshold = powerthreshold;
+        powerupThresholdTimer = 0.f;
     }
-
-    
 }
 
 void gameEngine::bombSlowchecker(float x)
@@ -241,12 +266,14 @@ void gameEngine::run()
             spawnbombs(delta);
             spawnpowerups(delta);
             collisionchecker();
-            thresholdchecker();
+            thresholdchecker(delta);
             bombSlowchecker(delta);
 
             if (player.health <= 0 || Keyboard::isKeyPressed(Keyboard::Key::Backspace)) {
 
                 state = GameState::GameOver;
+				playBGM.stop(); // Stop background music on game over
+				gameover.loseSound->play(); // Play lose sound
             }
 
         } 
@@ -266,17 +293,23 @@ void gameEngine::reset()
     player.scoremultiplier = 1;
     player.health = 5;
     player.moveSpeed = 700.f;
-    player.spriteplayer->setPosition({ WINDOW_WIDTH / 2, PLAY_OFFSET_Y + PLAY_HEIGHT - player.spriteplayer->getGlobalBounds().size.y });
+    player.playerX = WINDOW_WIDTH / 2; //init for startpos
+    player.spriteplayer->setPosition({ player.playerX, PLAY_OFFSET_Y + PLAY_HEIGHT - player.spriteplayer->getGlobalBounds().size.y });
     activeCoins = 1;
     activeBombs = 0;
     activePowerups = 0;
-    lastcoinThreshold = 0;
-    lastbombThreshold = 0;
-    lastpowerThreshold = 0;
     bombsSlowed = false;
     slowBombTimer = 0.f;
     bombSlowFactor = 0.5f;
     status = "";
+
+    coinThresholdTimer = 0.f;
+    bombThresholdTimer = 0.f;
+    powerupThresholdTimer = 0.f;
+
+    for (int i = 0; i < MAX_COINS; ++i) coin[i].coinFallspeed = 250.f;
+    for (int i = 0; i < MAX_BOMBS; ++i) bomb[i].bombFallspeed = 250.f;
+    for (int i = 0; i < MAX_POWERUPS; ++i) power[i].powerupFallspeed = 250.f;
 
     // Respawn all objects
     for (int i = 0; i < MAX_COINS; ++i) coin[i].respawncoin();
@@ -285,6 +318,8 @@ void gameEngine::reset()
 
     // Reset state
     state = GameState::Playing;
+	playBGM.play(); // Restart background music
+	playBGM.setLooping(true); // Music loops
 }
 
 gameWindow::gameWindow(RenderWindow* window) : window(window) {
@@ -491,6 +526,9 @@ Money::Money()
     spritecoin->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
     spritecoin->setScale({ 2.f, 2.f });
     respawncoin();
+    void respawncoinInWindow(float);
+    void respawnbombInWindow(float);
+    void respawnPowerupInWindow(float);
 }
 
 void Money::respawncoin() {
@@ -598,6 +636,13 @@ Powerups::Powerups()
     randomPowerSprite->setScale({ 2.f, 2.f });
     respawnPowerup();
 
+	// Powerup SFX
+    if (!powerupBuffer.loadFromFile("Sprites/soundfx/powerUP.wav")) {
+        cout << "ERROR LOADING POWERUP SOUND" << endl;
+    }
+    powerupSounds = new Sound(powerupBuffer);
+    powerupSounds->setBuffer(powerupBuffer);
+    powerupSounds->setVolume(100); // Adjust as needed
 }
 
 void Powerups::respawnPowerup()
@@ -635,11 +680,11 @@ void Powerups::renderPowerup(RenderWindow* l)
 
 gameOver::gameOver()
 {
-    if (!textureRetryButton.loadFromFile("Sprites/buttons/playbutton.png")) //checks if it load properly
+    if (!textureRetryButton.loadFromFile("Sprites/buttons/restartbutton.png")) //checks if it load properly
     {
         cout << "ERROR LOADING SPRITE" << endl;
     }
-    if (!textureQuitButton.loadFromFile("Sprites/buttons/exitbutton.png")) //checks if it load properly
+    if (!textureQuitButton.loadFromFile("Sprites/buttons/menubutton.png")) //checks if it load properly
     {
         cout << "ERROR LOADING SPRITE" << endl;
     }
@@ -652,6 +697,33 @@ gameOver::gameOver()
         cout << "ERROR LOADING FONT" << endl;
     }
     
+    // GAMEOVER SFX
+    if (!loseBuffer.loadFromFile("Sprites/soundfx/lose.wav")) {
+        std::cout << "ERROR LOADING LOSE SOUND" << std::endl;
+    }
+    loseSound = new Sound(loseBuffer);
+    loseSound->setBuffer(loseBuffer);
+    loseSound->setVolume(100); // Adjust as needed
+
+	// HOVER SFX
+    if (!hoverBuffer.loadFromFile("Sprites/soundfx/hover.wav")) {
+        std::cout << "ERROR LOADING HOVER SOUND" << std::endl;
+    }
+    hoverSound = new Sound(hoverBuffer);
+    hoverSound->setBuffer(hoverBuffer);
+    hoverSound->setVolume(80);
+
+    wasOverRetry = false;
+    wasOverQuit = false;
+
+    // CLICK SFX
+    if (!clickBuffer.loadFromFile("Sprites/soundfx/click.wav")) {
+        std::cout << "ERROR LOADING CLICK SOUND" << std::endl;
+    }
+    clickSound = new Sound(clickBuffer);
+    clickSound->setBuffer(clickBuffer);
+    clickSound->setVolume(80); // Adjust as needed
+
 
     float trayWidth = 750.f;
     float trayHeight = 450.f;
@@ -717,13 +789,27 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
             auto mouseClick = Vector2f(Mouse::getPosition(*l));
             if (spriteRetryButton->getGlobalBounds().contains(mouseClick))
             {
+				clickSound->play(); // Play click sound
                 engine->reset();
             }
             if (spriteQuitButton->getGlobalBounds().contains(mouseClick))
             {
+				clickSound->play(); // Play click sound
                 l->close();
             }
         }
     }
+
+    // HOVER SFX
+    Vector2f mousePos = Vector2f(Mouse::getPosition(*l));
+    bool overRetry = spriteRetryButton->getGlobalBounds().contains(mousePos);
+    bool overQuit = spriteQuitButton->getGlobalBounds().contains(mousePos);
+
+    // Play universal hover sound when mouse enters either button
+    if ((overRetry && !wasOverRetry) || (overQuit && !wasOverQuit)) {
+        hoverSound->play();
+    }
+    wasOverRetry = overRetry;
+    wasOverQuit = overQuit;
 }
 

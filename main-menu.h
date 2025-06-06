@@ -17,15 +17,12 @@ struct menuChoices {
 };
 
 class mainMenu {
-
-
 public:
 
 	mainMenu(sf::RenderWindow& window);
 	~mainMenu();
 
 	int run();
-
 
 private:
 	RenderWindow& window;
@@ -34,6 +31,8 @@ private:
 	Text playText, optionsText, exitText;
 
 
+	Texture menubgTexture;
+	Sprite menubgSprite;
 	//TEXTURE BUTTONS
 	Texture playButtonTexture, optionsButtonTexture, quitButtonTexture, speakerOnTexture, speakerOffTexture, logoTexture;
 
@@ -50,11 +49,7 @@ private:
 	//Vector2f leaderboardNormalScale;
 
 
-
-
-
-
-
+	/*void updateMenuObjects(float);*/
 	void loadAssets();
 	void setupMenu();
 	int inputMenu(const Event::MouseButtonPressed&);
