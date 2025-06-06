@@ -31,6 +31,14 @@ public:
 
 	Font gameoverFont;
 	Text *lostHeader;
+	SoundBuffer loseBuffer;
+	Sound* loseSound;
+	SoundBuffer hoverBuffer;
+	Sound* hoverSound;
+	bool wasOverRetry;
+	bool wasOverQuit;
+	SoundBuffer clickBuffer;
+	Sound* clickSound;
 };
 
 class gameWindow
@@ -131,6 +139,8 @@ private:
 	int currentFrame;
 public:
 	Powerups();
+	SoundBuffer powerupBuffer;
+	Sound* powerupSounds;
 	float randomValue;
 	float powerupFallspeed;
 	float fallSpeed;
@@ -159,15 +169,18 @@ public:
 	Bomb bomb[MAX_BOMBS];
 	Powerups power[MAX_POWERUPS];
 	String status;
-	int activeCoins = 0;
-	int activeBombs = 0;
-	int activePowerups = 0;
-	int lastcoinThreshold = 0;
-	int lastbombThreshold = 0;
-	int lastpowerThreshold = 0;
-	bool bombsSlowed = false;
-	float slowBombTimer = 0.f;
-	float bombSlowFactor = 0.5f;
+
+	int activeCoins;
+	int activeBombs;
+	int activePowerups;
+	int lastcoinThreshold;
+	int lastbombThreshold;
+	int lastpowerThreshold;
+	bool bombsSlowed;
+	float slowBombTimer;
+	float bombSlowFactor;
+	Music playBGM;
+
 
 	void run();
 	void updatetext();

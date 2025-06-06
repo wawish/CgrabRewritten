@@ -24,6 +24,16 @@ gameEngine::gameEngine(RenderWindow* window)
     bombsSlowed = false;
     slowBombTimer = 0.f;
     bombSlowFactor = 0.5f; // Factor to slow bombs
+
+    if (!playBGM.openFromFile("Sprites/soundfx/playBGM.wav")) {
+        std::cout << "ERROR LOADING BACKGROUND MUSIC" << std::endl;
+    }
+    else {
+        //bgmMusic.setLoop(true);
+        playBGM.setLooping(true);
+        playBGM.setVolume(40); // Volume control
+        playBGM.play();
+    }
 }
 
 void gameEngine::clamp()
@@ -84,7 +94,7 @@ void gameEngine::collisionchecker()
     }
     for (int i = 0; i < activePowerups; i++) { //collision checker for bombs
         if (power[i].randomPowerSprite->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
-            coin[i].coinSounds->play();
+            power[i].powerupSounds->play();
             int chosen = rand() % 30 + 1;
             
             switch (chosen)
@@ -247,6 +257,8 @@ void gameEngine::run()
             if (player.health <= 0 || Keyboard::isKeyPressed(Keyboard::Key::Backspace)) {
 
                 state = GameState::GameOver;
+				playBGM.stop(); // Stop background music on game over
+				gameover.loseSound->play(); // Play lose sound
             }
 
         } 
@@ -285,6 +297,8 @@ void gameEngine::reset()
 
     // Reset state
     state = GameState::Playing;
+	playBGM.play(); // Restart background music
+	playBGM.setLooping(true); // Music loops
 }
 
 gameWindow::gameWindow(RenderWindow* window) : window(window) {
@@ -598,6 +612,13 @@ Powerups::Powerups()
     randomPowerSprite->setScale({ 2.f, 2.f });
     respawnPowerup();
 
+	// Powerup SFX
+    if (!powerupBuffer.loadFromFile("Sprites/soundfx/powerUP.wav")) {
+        cout << "ERROR LOADING POWERUP SOUND" << endl;
+    }
+    powerupSounds = new Sound(powerupBuffer);
+    powerupSounds->setBuffer(powerupBuffer);
+    powerupSounds->setVolume(100); // Adjust as needed
 }
 
 void Powerups::respawnPowerup()
@@ -652,6 +673,33 @@ gameOver::gameOver()
         cout << "ERROR LOADING FONT" << endl;
     }
     
+    // GAMEOVER SFX
+    if (!loseBuffer.loadFromFile("Sprites/soundfx/lose.wav")) {
+        std::cout << "ERROR LOADING LOSE SOUND" << std::endl;
+    }
+    loseSound = new Sound(loseBuffer);
+    loseSound->setBuffer(loseBuffer);
+    loseSound->setVolume(100); // Adjust as needed
+
+	// HOVER SFX
+    if (!hoverBuffer.loadFromFile("Sprites/soundfx/hover.wav")) {
+        std::cout << "ERROR LOADING HOVER SOUND" << std::endl;
+    }
+    hoverSound = new Sound(hoverBuffer);
+    hoverSound->setBuffer(hoverBuffer);
+    hoverSound->setVolume(80);
+
+    wasOverRetry = false;
+    wasOverQuit = false;
+
+    // CLICK SFX
+    if (!clickBuffer.loadFromFile("Sprites/soundfx/click.wav")) {
+        std::cout << "ERROR LOADING CLICK SOUND" << std::endl;
+    }
+    clickSound = new Sound(clickBuffer);
+    clickSound->setBuffer(clickBuffer);
+    clickSound->setVolume(80); // Adjust as needed
+
 
     float trayWidth = 750.f;
     float trayHeight = 450.f;
@@ -717,13 +765,27 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
             auto mouseClick = Vector2f(Mouse::getPosition(*l));
             if (spriteRetryButton->getGlobalBounds().contains(mouseClick))
             {
+				clickSound->play(); // Play click sound
                 engine->reset();
             }
             if (spriteQuitButton->getGlobalBounds().contains(mouseClick))
             {
+				clickSound->play(); // Play click sound
                 l->close();
             }
         }
     }
+
+    // HOVER SFX
+    Vector2f mousePos = Vector2f(Mouse::getPosition(*l));
+    bool overRetry = spriteRetryButton->getGlobalBounds().contains(mousePos);
+    bool overQuit = spriteQuitButton->getGlobalBounds().contains(mousePos);
+
+    // Play universal hover sound when mouse enters either button
+    if ((overRetry && !wasOverRetry) || (overQuit && !wasOverQuit)) {
+        hoverSound->play();
+    }
+    wasOverRetry = overRetry;
+    wasOverQuit = overQuit;
 }
 
