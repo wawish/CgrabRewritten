@@ -36,7 +36,7 @@ public:
 	Sprite* spriteOverTray, *spriteQuitButton, *spriteRetryButton;
 	void draw(RenderWindow* l);
 
-	void checkEvent(RenderWindow* l, gameEngine* engine);
+	void checkEvent(RenderWindow* l, gameEngine* engine, bool*);
 
 	Font gameoverFont;
 	Text *lostHeader;

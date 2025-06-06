@@ -11,6 +11,13 @@ void randomNumber()
     srand(static_cast<unsigned int>(time(nullptr)));
 }
 
+float getRandomNumber() {
+    static random_device rd;
+    static mt19937 gen(rd());
+    static uniform_real_distribution<> dis(0.0, 1.0);
+    return dis(gen);
+}
+
 comicSlideShow::comicSlideShow(RenderWindow* l)
 {
     if(!frame1.loadFromFile("Sprites/comic/1.png") || !frame2.loadFromFile("Sprites/comic/2.png") || !frame3.loadFromFile("Sprites/comic/3.png"))
@@ -112,10 +119,10 @@ gameEngine::gameEngine(RenderWindow* window)
     bombThresholdTimer = 0.f;
     bombThresholdInterval = 25.f; // Interval for bomb threshold in seconds
     powerupThresholdTimer = 0.f;
-    powerupThresholdInterval = 100.f; // Interval for powerup threshold in seconds
+    powerupThresholdInterval = 15.f; // Interval for powerup threshold in seconds
 
     if (!playBGM.openFromFile("Sprites/soundfx/playBGM.wav")) {
-        std::cout << "ERROR LOADING BACKGROUND MUSIC" << std::endl;
+        cout << "ERROR LOADING BACKGROUND MUSIC" << std::endl;
     }
     else {
         //bgmMusic.setLoop(true);
@@ -248,7 +255,13 @@ void gameEngine::collisionchecker()
                 status = "Nothing! (Be happy)"; // to be removed
                 break;
             }
-            power[i].respawnPowerup();
+            for (int i = 0; i < activePowerups; ++i)
+            {
+                
+                float randomValue = PLAY_OFFSET_X + (PLAY_WIDTH - 64) * getRandomNumber();
+                power[i].randomPowerSprite->setPosition({ randomValue, PLAY_OFFSET_Y });
+            }
+            activePowerups--;
         }
     }
 
@@ -339,6 +352,7 @@ void gameEngine::run()
 {
     clamp();
     Clock clock;
+    bool goToMenu = false;
     while (window.window->isOpen()) {
         float delta = clock.restart().asSeconds();
         window.window->clear();
@@ -349,9 +363,9 @@ void gameEngine::run()
             updatetext();
             player.checkEvent(window.window, delta);
             player.renderplayer(window.window);
-            spawncoins(delta);
-            spawnbombs(delta);
-            spawnpowerups(delta);
+            if (activeCoins)spawncoins(delta);
+            if (activeBombs)spawnbombs(delta);
+            if (activePowerups)spawnpowerups(delta);
             collisionchecker();
             thresholdchecker(delta);
             bombSlowchecker(delta);
@@ -366,7 +380,8 @@ void gameEngine::run()
         } 
         else if (state == GameState::GameOver) {
             gameover.draw(window.window);
-            gameover.checkEvent(window.window, this);
+            gameover.checkEvent(window.window, this, &goToMenu);
+            if (goToMenu) break;
         }
 
         window.window->display();
@@ -582,13 +597,6 @@ void Player::updateplayer(float deltaTime) {
 		spriteplayer->setTextureRect(IntRect({ currentFrame * frameWidth, 0 }, { frameWidth, frameHeight }));
 		frameTimer = 0.f;
 	}
-}
-
-float getRandomNumber() {
-    static random_device rd;
-    static mt19937 gen(rd());
-    static uniform_real_distribution<> dis(0.0, 1.0);
-    return dis(gen);
 }
 
 Money::Money()
@@ -865,7 +873,7 @@ void gameOver::draw(RenderWindow* l)
     l->draw(*spriteRetryButton);
 }
 
-void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
+void gameOver::checkEvent(RenderWindow* l, gameEngine* engine, bool* goToMenu)
 {
     while (auto event = l->pollEvent())
     {
@@ -884,7 +892,7 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
             if (spriteQuitButton->getGlobalBounds().contains(mouseClick))
             {
 				clickSound->play(); // Play click sound
-                l->close();
+                if (goToMenu) *goToMenu = true;
             }
         }
     }
