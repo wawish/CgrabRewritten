@@ -858,6 +858,7 @@ gameOver::gameOver()
 
     spriteRetryButton->setScale({ buttonScale, buttonScale });
     spriteQuitButton->setScale({ buttonScale, buttonScale });
+    
 
     // Store initial scales for hover effect
     retryButtonInitialScale = spriteRetryButton->getScale();
