@@ -42,7 +42,8 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 
 	playText(font, "Play", 30),
 	optionsText(font, "Options", 30),
-	exitText(font, "Exit", 30)
+	exitText(font, "Exit", 30),
+
 
 {
 
@@ -60,6 +61,7 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 
 	setupMenu();
 	sf::Listener::setGlobalVolume(isMuted ? 0.f : 100.f); // Set initial volume based on mute state
+
 }
 
 mainMenu::~mainMenu() {
@@ -218,43 +220,42 @@ void mainMenu::setupMenu() {
 
 
 int mainMenu::run() {
+    sf::Clock clock;
+    while (window.isOpen()) {
+        float deltaTime = clock.restart().asSeconds();
+        while (const optional event = window.pollEvent()) {
+            if (event->is<Event::Closed>()) {
+                window.close();
+                return menuChoices::EXIT;
+            }
+            if (const auto* mouseEvent = event->getIf<Event::MouseButtonPressed>()) {
+                if (mouseEvent->button == Mouse::Button::Left) {
 
-	while (window.isOpen()) {
-		while (const optional event = window.pollEvent()) {
-			if (event->is<Event::Closed>()) {
-				window.close();
-				return menuChoices::EXIT;
-			}
-			if (const auto* mouseEvent = event->getIf<Event::MouseButtonPressed>()) {
-				if (mouseEvent->button == Mouse::Button::Left) {
+                    Vector2f mousePos(static_cast<float>(mouseEvent->position.x),
+                        static_cast<float>(mouseEvent->position.y));
 
-					Vector2f mousePos(static_cast<float>(mouseEvent->position.x),
-						static_cast<float>(mouseEvent->position.y));
+                    if ((!isMuted && speakerOnSprite.getGlobalBounds().contains(mousePos)) ||
+                        isMuted && speakerOffSprite.getGlobalBounds().contains(mousePos)) {
 
-					if ((!isMuted && speakerOnSprite.getGlobalBounds().contains(mousePos)) ||
-						isMuted && speakerOffSprite.getGlobalBounds().contains(mousePos)) {
+                        toggleMute();
 
-						toggleMute();
+                    }
 
-					}
-
-					else {
-						int redirect = inputMenu(*mouseEvent);
-						if (redirect != 0) {
-							return redirect;
-						}
-
-
-					}
-				}
-			}
-		}
-		updateHover();
-		render();
-	}
+                    else {
+                        int redirect = inputMenu(*mouseEvent);
+                        if (redirect != 0) {
+                            return redirect;
+                        }
 
 
-	return menuChoices::EXIT;
+                    }
+                }
+            }
+        }
+        updateHover();
+        render();
+    }
+    return menuChoices::EXIT;
 }
 
 
@@ -336,38 +337,33 @@ void mainMenu::updateHover() {
 }
 
 void mainMenu::render() {
-
-	window.clear(Color::Black);
-	window.draw(menubgSprite);
-
+    window.clear(Color::Black);
+    window.draw(menubgSprite);
 
 
-	window.draw(logoSprite);
-	window.draw(playButtonSprite);
-	window.draw(playText);
+    window.draw(logoSprite);
+    window.draw(playButtonSprite);
+    window.draw(playText);
 
-	window.draw(optionsButtonSprite);
-	window.draw(optionsText);
+    window.draw(optionsButtonSprite);
+    window.draw(optionsText);
 
-	window.draw(quitButtonSprite);
-	window.draw(exitText);
+    window.draw(quitButtonSprite);
+    window.draw(exitText);
 
-	sf::FloatRect textBounds = playText.getGlobalBounds();
-	sf::RectangleShape boundsRect(sf::Vector2f(textBounds.size.x, textBounds.size.y));
-	boundsRect.setPosition(Vector2f(textBounds.position.x, textBounds.position.y));
-	boundsRect.setFillColor(sf::Color(255, 0, 0, 100)); // Semi-transparent red
-	window.draw(boundsRect);
+    sf::FloatRect textBounds = playText.getGlobalBounds();
+    sf::RectangleShape boundsRect(sf::Vector2f(textBounds.size.x, textBounds.size.y));
+    boundsRect.setPosition(Vector2f(textBounds.position.x, textBounds.position.y));
+    boundsRect.setFillColor(sf::Color(255, 0, 0, 100)); // Semi-transparent red
+    window.draw(boundsRect);
 
+    if (isMuted) {
+        window.draw(speakerOffSprite);
+    } else {
+        window.draw(speakerOnSprite);
+    }
 
-	if (isMuted) {
-		window.draw(speakerOffSprite);
-	}
-
-	else {
-		window.draw(speakerOnSprite);
-	}
-
-	window.display();
+    window.display();
 }
 
 void mainMenu::toggleMute() {
@@ -375,3 +371,5 @@ void mainMenu::toggleMute() {
 	sf::Listener::setGlobalVolume(isMuted ? 0.f : 100.f); // Toggle volume
 	cout << (isMuted ? "Sound muted." : "Sound unmuted.") << endl;
 }
+
+

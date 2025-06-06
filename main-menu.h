@@ -30,6 +30,7 @@ private:
 	Font font;
 	Text playText, optionsText, exitText;
 
+
 	Texture menubgTexture;
 	Sprite menubgSprite;
 	//TEXTURE BUTTONS
@@ -47,6 +48,8 @@ private:
 	//Sprite leaderboardSprite;
 	//Vector2f leaderboardNormalScale;
 
+
+	/*void updateMenuObjects(float);*/
 	void loadAssets();
 	void setupMenu();
 	int inputMenu(const Event::MouseButtonPressed&);

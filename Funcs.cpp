@@ -510,6 +510,9 @@ Money::Money()
     spritecoin->setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
     spritecoin->setScale({ 2.f, 2.f });
     respawncoin();
+    void respawncoinInWindow(float);
+    void respawnbombInWindow(float);
+    void respawnPowerupInWindow(float);
 }
 
 void Money::respawncoin() {
