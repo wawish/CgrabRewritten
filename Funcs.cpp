@@ -440,32 +440,14 @@ gameWindow::gameWindow(RenderWindow* window) : window(window) {
     if (!gameFont.openFromFile("Sprites/Fonts/ka1.ttf")) {
         cerr << "ERROR LOADING FONT" << endl;
     }
-    T_health = new Text(gameFont);
     T_score = new Text(gameFont);
-    T_bombs = new Text(gameFont);
-    T_coins = new Text(gameFont);
-    T_multiplier = new Text(gameFont);
     T_status = new Text(gameFont);
 
-    T_health->setCharacterSize(32);
     T_score->setCharacterSize(32);
-    T_bombs->setCharacterSize(32);
-    T_coins->setCharacterSize(32);
-    T_multiplier->setCharacterSize(32);
     T_status->setCharacterSize(24);
     
-    T_health->setPosition({ 0, PLAY_OFFSET_Y + 0.f });
-    T_score->setPosition({ 0, PLAY_OFFSET_Y + 40.f });
-    T_bombs->setPosition({ 0, PLAY_OFFSET_Y + 80.f });
-    T_coins->setPosition({ 0, PLAY_OFFSET_Y + 120.f });
-    T_multiplier->setPosition({ 0, PLAY_OFFSET_Y + 160.f });
-    T_status->setPosition({ 0, PLAY_OFFSET_Y + 200.f });
 
-    T_health->setFillColor({ 0, 0, 0 });
     T_score->setFillColor({ 0, 0, 0 });
-    T_bombs->setFillColor({ 0, 0, 0 });
-    T_coins->setFillColor({ 0, 0, 0 });
-    T_multiplier->setFillColor({ 0, 0, 0 });
     T_status->setFillColor({ 0, 0, 0 });
     
     if (!texturebg.loadFromFile("Sprites/bg/testbg.png")) {
@@ -479,9 +461,6 @@ gameWindow::~gameWindow() //deconstructor
 {
     
     delete spritebg;
-    delete T_health;
-    delete T_coins;
-    delete T_bombs;
     delete T_status;
     delete T_score;
 }
@@ -882,8 +861,6 @@ void gameOver::draw(RenderWindow* l)
 {   
     l->draw(*spriteOverTray);
     l->draw(*lostHeader);
-//     float scoreX = ((1920.f - 750) / 2.f) + 230.f;
-//     float scoreY = ((1080.f - 450) / 2.f) + 180.f+10.f;
     float scoreX = ((1920.f - 750) / 2.f) + 215.f;
     float scoreY = ((1080.f - 450) / 2.f) + 180.f;
     endscore->setPosition({ scoreX, scoreY });

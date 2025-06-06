@@ -60,7 +60,7 @@ public:
 	Texture texturebg;
 	Sprite* spritebg;
 	Font gameFont;
-	Text *T_health, *T_score, *T_bombs, *T_coins, *T_multiplier, *T_status;
+	Text *T_score, *T_status;
 };
 
 class Player
@@ -141,7 +141,6 @@ class Powerups
 {
 private:
 	vector<float> frameDurations;
-	//float frameDuration;
 	float frameTimer;
 	int frameWidth;
 	int frameHeight;
