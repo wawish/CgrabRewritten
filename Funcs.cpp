@@ -94,7 +94,7 @@ void gameEngine::collisionchecker()
     }
     for (int i = 0; i < activePowerups; i++) { //collision checker for bombs
         if (power[i].randomPowerSprite->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
-            coin[i].coinSounds->play();
+            power[i].powerupSounds->play();
             int chosen = rand() % 30 + 1;
             
             switch (chosen)
@@ -618,6 +618,13 @@ Powerups::Powerups()
     randomPowerSprite->setScale({ 2.f, 2.f });
     respawnPowerup();
 
+	// Powerup SFX
+    if (!powerupBuffer.loadFromFile("Sprites/soundfx/powerUP.wav")) {
+        cout << "ERROR LOADING POWERUP SOUND" << endl;
+    }
+    powerupSounds = new Sound(powerupBuffer);
+    powerupSounds->setBuffer(powerupBuffer);
+    powerupSounds->setVolume(100); // Adjust as needed
 }
 
 void Powerups::respawnPowerup()

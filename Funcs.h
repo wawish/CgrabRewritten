@@ -134,6 +134,8 @@ private:
 	int currentFrame;
 public:
 	Powerups();
+	SoundBuffer powerupBuffer;
+	Sound* powerupSounds;
 	float randomValue;
 	float powerupFallspeed;
 	float fallSpeed;
