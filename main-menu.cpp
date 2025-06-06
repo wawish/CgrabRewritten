@@ -23,7 +23,7 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 
 	window(mainWindow),
 	font(),
-	isMuted(false),
+	
 
 	menubgSprite(menubgTexture),
 	playButtonSprite(playButtonTexture),
@@ -53,7 +53,7 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 
 
 	setupMenu();
-	sf::Listener::setGlobalVolume(isMuted ? 0.f : 100.f); // Set initial volume based on mute state
+	sf::Listener::setGlobalVolume(optionsMenu::isMuted ? 0.f : 100.f); // Set initial volume based on mute state
 
 }
 
@@ -244,8 +244,8 @@ int mainMenu::run() {
                     Vector2f mousePos(static_cast<float>(mouseEvent->position.x),
                         static_cast<float>(mouseEvent->position.y));
 
-                    if ((!isMuted && speakerOnSprite.getGlobalBounds().contains(mousePos)) ||
-                        isMuted && speakerOffSprite.getGlobalBounds().contains(mousePos)) {
+                    if ((!optionsMenu::isMuted && speakerOnSprite.getGlobalBounds().contains(mousePos)) ||
+						optionsMenu::isMuted && speakerOffSprite.getGlobalBounds().contains(mousePos)) {
                         
 						toggleMute();
 
@@ -317,7 +317,7 @@ void mainMenu::updateHover() {
 	bool overPlay = playButtonSprite.getGlobalBounds().contains(mousePos);
 	bool overOptions = optionsButtonSprite.getGlobalBounds().contains(mousePos);
 	bool overQuit = quitButtonSprite.getGlobalBounds().contains(mousePos);
-	bool overSpeaker = isMuted
+	bool overSpeaker = optionsMenu::isMuted
 		? speakerOffSprite.getGlobalBounds().contains(mousePos)
 		: speakerOnSprite.getGlobalBounds().contains(mousePos);
 
@@ -387,7 +387,7 @@ void mainMenu::render() {
     boundsRect.setFillColor(sf::Color(255, 0, 0, 100)); // Semi-transparent red
     window.draw(boundsRect);
 
-    if (isMuted) {
+    if (optionsMenu::isMuted) {
         window.draw(speakerOffSprite);
     } else {
         window.draw(speakerOnSprite);
@@ -399,15 +399,15 @@ void mainMenu::render() {
 void mainMenu::toggleMute() {
 	if (clickSound) clickSound->play();
 
-	isMuted = !isMuted;
+	optionsMenu::isMuted = !(optionsMenu::isMuted);
 	
-	if (isMuted) {
+	if (optionsMenu::isMuted) {
 		sf::Listener::setGlobalVolume(0.f);
 	}
 	else {
 		sf::Listener::setGlobalVolume(100.f);
 	}
-	cout << (isMuted ? "Sound muted." : "Sound unmuted.") << endl;
+	cout << (optionsMenu::isMuted ? "Sound muted." : "Sound unmuted.") << endl;
 }
 
 

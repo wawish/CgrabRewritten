@@ -42,7 +42,7 @@ private:
 	//VECTOR
 	Vector2f playButtonInitialScale, optionsButtonInitialScale, quitButtonInitialScale, speakerOnInitialScale, speakerOffInitialScale;
 
-	bool isMuted;
+	
 
 	//Texture leaderboardButtonTexture;
 	//Sprite leaderboardSprite;

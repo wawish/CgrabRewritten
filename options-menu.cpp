@@ -2,6 +2,7 @@
 #include "Funcs.h"
 #include <iostream>
 
+bool optionsMenu::isMuted = false;
 float optionsMenu::soundFX = 80;
 float optionsMenu::musicVol = 80;
 const float globalScale = 0.80f, decrementScale = 0.10f;
