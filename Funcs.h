@@ -29,10 +29,8 @@ public:
 	Text *lostHeader;
 	SoundBuffer loseBuffer;
 	Sound* loseSound;
-	SoundBuffer hoverRetryBuffer;
-	Sound* hoverRetrySound;
-	SoundBuffer hoverQuitBuffer;
-	Sound* hoverQuitSound;
+	SoundBuffer hoverBuffer;
+	Sound* hoverSound;
 	bool wasOverRetry;
 	bool wasOverQuit;
 };

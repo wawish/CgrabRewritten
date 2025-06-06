@@ -681,23 +681,15 @@ gameOver::gameOver()
     loseSound->setVolume(100); // Adjust as needed
 
 	// HOVER SFX
-    if (!hoverRetryBuffer.loadFromFile("Sprites/soundfx/hoverRetry.wav")) {
-        std::cout << "ERROR LOADING hoverRetry SOUND" << std::endl;
+    if (!hoverBuffer.loadFromFile("Sprites/soundfx/hover.wav")) {
+        std::cout << "ERROR LOADING HOVER SOUND" << std::endl;
     }
-    hoverRetrySound = new Sound(hoverRetryBuffer);
-    hoverRetrySound->setBuffer(hoverRetryBuffer);
-    hoverRetrySound->setVolume(80);
-
-    if (!hoverQuitBuffer.loadFromFile("Sprites/soundfx/hoverQuit.wav")) {
-        std::cout << "ERROR LOADING hoverQuit SOUND" << std::endl;
-    }
-    hoverQuitSound = new Sound(hoverQuitBuffer);
-    hoverQuitSound->setBuffer(hoverQuitBuffer);
-    hoverQuitSound->setVolume(80);
+    hoverSound = new Sound(hoverBuffer);
+    hoverSound->setBuffer(hoverBuffer);
+    hoverSound->setVolume(80);
 
     wasOverRetry = false;
     wasOverQuit = false;
-
 
     float trayWidth = 750.f;
     float trayHeight = 450.f;
@@ -776,34 +768,11 @@ void gameOver::checkEvent(RenderWindow* l, gameEngine* engine)
     bool overRetry = spriteRetryButton->getGlobalBounds().contains(mousePos);
     bool overQuit = spriteQuitButton->getGlobalBounds().contains(mousePos);
 
-    // Play hover sound when mouse enters the retry button
-    if (overRetry && !wasOverRetry) {
-        hoverRetrySound->play();
-    }
-    // Play hover sound when mouse enters the quit button
-    if (overQuit && !wasOverQuit) {
-        hoverQuitSound->play();
+    // Play universal hover sound when mouse enters either button
+    if ((overRetry && !wasOverRetry) || (overQuit && !wasOverQuit)) {
+        hoverSound->play();
     }
     wasOverRetry = overRetry;
     wasOverQuit = overQuit;
-
-    while (auto event = l->pollEvent())
-    {
-        if (event->is<Event::Closed>())
-        {
-            l->close();
-        }
-        if (event->is<Event::MouseButtonPressed>())
-        {
-            if (overRetry)
-            {
-                engine->reset();
-            }
-            if (overQuit)
-            {
-                l->close();
-            }
-        }
-    }
 }
 
