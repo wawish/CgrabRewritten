@@ -24,14 +24,6 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 	font(),
 	isMuted(false),
 
-	playButtonTexture(),
-	optionsButtonTexture(),
-	quitButtonTexture(),
-	speakerOnTexture(),
-	speakerOffTexture(),
-	logoTexture(),
-	menubgTexture(),
-
 	menubgSprite(menubgTexture),
 	playButtonSprite(playButtonTexture),
 	optionsButtonSprite(optionsButtonTexture),
