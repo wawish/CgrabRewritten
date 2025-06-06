@@ -24,9 +24,6 @@ mainMenu::mainMenu(RenderWindow& mainWindow) :
 	font(),
 	isMuted(false),
 
-
-
-
 	playButtonTexture(),
 	optionsButtonTexture(),
 	quitButtonTexture(),
@@ -96,9 +93,9 @@ void mainMenu::loadAssets() {
 
 	//logoSprite.setTextureRect(IntRect({ 0, 0 }, { 900, 432 }));
 
-	logoSprite.setScale(Vector2f(0.56875f, 0.56875f));
-	playButtonSprite.setScale(Vector2f(0.36875f, 0.36875f));
-	optionsButtonSprite.setScale(Vector2f(0.36875f, 0.36875f));
+	logoSprite.setScale(Vector2f(0.66875f, 0.56875f));
+	playButtonSprite.setScale(Vector2f(0.46875f, 0.46875f));
+	optionsButtonSprite.setScale(Vector2f(0.46875f, 0.46875f));
 	quitButtonSprite.setScale(Vector2f(0.46875f, 0.46875f));
 	speakerOnSprite.setScale(Vector2f(0.26875f, 0.26875f));
 	speakerOffSprite.setScale(Vector2f(0.26875f, 0.26875f));
@@ -300,11 +297,7 @@ void mainMenu::updateHover() {
 	Color buttonHighlight(200, 200, 200);
 	Color buttonNormal(255, 255, 255, 255);
 
-
-
-
 	const float hoverScaleFactor = 1.1f;
-
 
 	if (playButtonSprite.getGlobalBounds().contains(mousePos)) {
 		playButtonSprite.setScale(playButtonInitialScale * hoverScaleFactor);
