@@ -17,13 +17,17 @@ gameEngine::gameEngine(RenderWindow* window)
     activeCoins = 1; //coins currently onscreen
     activeBombs = 0; //bombs currently onscreen
     activePowerups = 0;
-    lastcoinThreshold = 0; //stores the current threshold for coins
-    lastbombThreshold = 0; //stores the current threshold for bombs
-    lastpowerThreshold = 0;
     activePowerups = 0;
     bombsSlowed = false;
     slowBombTimer = 0.f;
     bombSlowFactor = 0.5f; // Factor to slow bombs
+
+    coinThresholdTimer = 0.f;
+    coinThresholdInterval = 15.f; // Interval for coin threshold in seconds
+    bombThresholdTimer = 0.f;
+    bombThresholdInterval = 25.f; // Interval for bomb threshold in seconds
+    powerupThresholdTimer = 0.f;
+    powerupThresholdInterval = 100.f; // Interval for powerup threshold in seconds
 
     if (!playBGM.openFromFile("Sprites/soundfx/playBGM.wav")) {
         std::cout << "ERROR LOADING BACKGROUND MUSIC" << std::endl;
@@ -161,46 +165,46 @@ void gameEngine::collisionchecker()
 
 }
 
-void gameEngine::thresholdchecker()
+void gameEngine::thresholdchecker(float delta)
 {
     clamp();
-    int cointhreshold = player.score / 500; //coin ramp up
-    if (cointhreshold > lastcoinThreshold && activeCoins < 10) {
-        cout << "THRESHOLD REACHED! Amount of Coins: " << activeCoins << " Score: " << player.score << endl;
-        if(activeCoins < MAX_COINS) activeCoins++;
+
+    // COINS
+    coinThresholdTimer += delta;
+    if (coinThresholdTimer >= coinThresholdInterval && activeCoins < MAX_COINS) {
+        cout << "TIME THRESHOLD REACHED! Amount of Coins: " << activeCoins << endl;
+        activeCoins++;
         for (int i = 0; i < activeCoins; ++i) {
             coin[i].coinFallspeed += 25.f;
         }
-        lastcoinThreshold = cointhreshold;
+        coinThresholdTimer = 0.f;
     }
 
-
-    int bombthreshold = player.score / 1000; //bomb ramp up
+    // BOMBS
+    bombThresholdTimer += delta;
     int oldActiveBombs = activeBombs;
-    if (bombthreshold > lastbombThreshold && activeBombs < 25) {
-        cout << "THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
-        if (activeBombs < MAX_BOMBS) activeBombs++;
+    if (bombThresholdTimer >= bombThresholdInterval && activeBombs < MAX_BOMBS) {
+        cout << "TIME THRESHOLD REACHED! Amount of Bombs: " << activeBombs << endl;
+        activeBombs++;
         for (int i = 0; i < activeBombs; ++i) {
             bomb[i].bombFallspeed += 25.f;
-            // Only respawn new bombs
             if (i >= oldActiveBombs) {
                 bomb[i].respawnbomb(0);
             }
         }
-        lastbombThreshold = bombthreshold;
+        bombThresholdTimer = 0.f;
     }
 
-    int powerthreshold = player.score / 1500; //Power ramp up
-    if (powerthreshold > lastpowerThreshold && activePowerups < 5) {
-        cout << "THRESHOLD REACHED! Amount of Powerups: " << activePowerups << endl;
-        if (activePowerups < MAX_POWERUPS) activePowerups++;
+    // POWERUPS
+    powerupThresholdTimer += delta;
+    if (powerupThresholdTimer >= powerupThresholdInterval && activePowerups < MAX_POWERUPS) {
+        cout << "TIME THRESHOLD REACHED! Amount of Powerups: " << activePowerups << endl;
+        activePowerups++;
         for (int i = 0; i < activePowerups; ++i) {
             power[i].powerupFallspeed += 25.f;
         }
-        lastpowerThreshold = powerthreshold;
+        powerupThresholdTimer = 0.f;
     }
-
-    
 }
 
 void gameEngine::bombSlowchecker(float x)
@@ -251,7 +255,7 @@ void gameEngine::run()
             spawnbombs(delta);
             spawnpowerups(delta);
             collisionchecker();
-            thresholdchecker();
+            thresholdchecker(delta);
             bombSlowchecker(delta);
 
             if (player.health <= 0 || Keyboard::isKeyPressed(Keyboard::Key::Backspace)) {
@@ -283,13 +287,14 @@ void gameEngine::reset()
     activeCoins = 1;
     activeBombs = 0;
     activePowerups = 0;
-    lastcoinThreshold = 0;
-    lastbombThreshold = 0;
-    lastpowerThreshold = 0;
     bombsSlowed = false;
     slowBombTimer = 0.f;
     bombSlowFactor = 0.5f;
     status = "";
+
+    coinThresholdTimer = 0.f;
+    bombThresholdTimer = 0.f;
+    powerupThresholdTimer = 0.f;
 
     for (int i = 0; i < MAX_COINS; ++i) coin[i].coinFallspeed = 250.f;
     for (int i = 0; i < MAX_BOMBS; ++i) bomb[i].bombFallspeed = 250.f;

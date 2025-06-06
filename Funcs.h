@@ -161,6 +161,15 @@ public:
 	static const int MAX_COINS = 5;
 	static const int MAX_BOMBS = 3;
 	static const int MAX_POWERUPS = 2;
+	// In class gameEngine (public or private section)
+	float coinThresholdTimer = 0.f;
+	float bombThresholdTimer = 0.f;
+	float powerupThresholdTimer = 0.f;
+
+
+	float coinThresholdInterval;
+	float bombThresholdInterval;   
+	float powerupThresholdInterval;
 
 	gameOver gameover;
 	gameWindow window;
@@ -173,9 +182,6 @@ public:
 	int activeCoins;
 	int activeBombs;
 	int activePowerups;
-	int lastcoinThreshold;
-	int lastbombThreshold;
-	int lastpowerThreshold;
 	bool bombsSlowed;
 	float slowBombTimer;
 	float bombSlowFactor;
@@ -188,7 +194,7 @@ public:
 	void spawncoins(float);
 	void spawnpowerups(float);
 	void collisionchecker();
-	void thresholdchecker();
+	void thresholdchecker(float);
 	void bombSlowchecker(float);
 	void clamp();
 	void reset();
