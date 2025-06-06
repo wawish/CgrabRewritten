@@ -274,15 +274,6 @@ int mainMenu::inputMenu(const Event::MouseButtonPressed& mouseEvent) {
 	Vector2f mouseClick(static_cast<float>(mouseEvent.position.x),
 		static_cast<float>(mouseEvent.position.y));
 
-	// --- CORRECTED DEBUGGING BLOCK ---
-	sf::FloatRect playBounds = playButtonSprite.getGlobalBounds();
-	cout << "--------------------------------" << endl;
-	cout << "Mouse Clicked at: (" << mouseClick.x << ", " << mouseClick.y << ")" << endl;
-	cout << "Checking against Play Button Bounds: "
-		<< "Left: " << playBounds.position.x << ", Top: " << playBounds.position.y
-		<< ", Width: " << playBounds.size.x << ", Height: " << playBounds.size.y << ")" << endl;
-	// --- END DEBUGGING BLOCK ---
-
 	if (playButtonSprite.getGlobalBounds().contains(mouseClick)) {
 		if (clickSound) clickSound->play();
 		cout << "Playing... Grab as many cash as you can!" << endl;
