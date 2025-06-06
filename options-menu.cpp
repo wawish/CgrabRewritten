@@ -169,10 +169,10 @@ optionsMenu::optionsMenu(RenderWindow& window, Music& BGM) :
 
 
 	instructionSprite.setOrigin(Vector2f(instructionSprite.getLocalBounds().size.x / 2.f, 0.f));
-	instructionSprite.setPosition(Vector2f(windowWidth - 265.0f , 400));
+	instructionSprite.setPosition(Vector2f(windowWidth/2 , windowHeight/2 + 100));
 
 	creditSprite.setOrigin(Vector2f(creditSprite.getLocalBounds().size.x / 2.f, 0.f));
-	creditSprite.setPosition(Vector2f(windowWidth - 265.0f, windowHeight - 500));
+	creditSprite.setPosition(Vector2f(windowWidth/2, windowHeight/2 + 300));
 
 
 	bigTraySprite.setOrigin(Vector2f(bigTraySprite.getLocalBounds().size.x / 2.f, 0.f));
