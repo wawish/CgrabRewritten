@@ -116,11 +116,11 @@ gameEngine::gameEngine(RenderWindow* window)
     bombSlowFactor = 0.5f; // Factor to slow bombs
 
     coinThresholdTimer = 0.f;
-    coinThresholdInterval = 15.f; // Interval for coin threshold in seconds
+    coinThresholdInterval = 10.f; // Interval for coin threshold in seconds
     bombThresholdTimer = 0.f;
-    bombThresholdInterval = 25.f; // Interval for bomb threshold in seconds
+    bombThresholdInterval = 15.f; // Interval for bomb threshold in seconds
     powerupThresholdTimer = 0.f;
-    powerupThresholdInterval = 15.f; // Interval for powerup threshold in seconds
+    powerupThresholdInterval = 20.f; // Interval for powerup threshold in seconds
 
     if (!playBGM.openFromFile("Sprites/soundfx/playBGM.wav")) {
         cout << "ERROR LOADING BACKGROUND MUSIC" << std::endl;
@@ -175,7 +175,6 @@ void gameEngine::collisionchecker()
     for (int i = 0; i < activeCoins; i++) { //collision checker for coins
         if (coin[i].spritecoin->getGlobalBounds().findIntersection(player.spriteplayer->getGlobalBounds())) {
             player.score += 100 * player.scoremultiplier;
-            if (rand() % 10 + 1 == 1 && activeBombs < MAX_BOMBS)activeBombs += 1;
             coin[i].coinSounds->play();
             cout << "hit! " << player.score << endl;
             coin[i].respawncoin();
